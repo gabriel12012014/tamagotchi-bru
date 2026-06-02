@@ -1,0 +1,1213 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LilyGO TTGO T-Display - Tamagotchi Simulator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <script src="sprites.js"></script>
+  <style>
+    :root {
+      --bg-color: #090d16;
+      --card-bg: rgba(22, 28, 45, 0.6);
+      --border-color: rgba(255, 255, 255, 0.08);
+      --accent-color: #3b82f6;
+      --accent-glow: rgba(59, 130, 246, 0.35);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow-x: hidden;
+      background-image:
+        radial-gradient(circle at 10% 20%, rgba(59, 130, 246, 0.05) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(147, 51, 234, 0.05) 0%, transparent 40%),
+        linear-gradient(rgba(255, 255, 255, 0.01) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.01) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
+    }
+
+    header { text-align: center; margin-bottom: 2rem; padding-top: 1rem; }
+    header h1 {
+      font-size: 1.8rem; font-weight: 800; letter-spacing: -0.025em;
+      background: linear-gradient(135deg, #60a5fa 0%, #a855f7 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      margin-bottom: 0.25rem;
+    }
+    header p { font-size: 0.9rem; color: var(--text-muted); }
+
+    .main-container {
+      display: flex; flex-direction: row; gap: 3rem;
+      align-items: center; justify-content: center;
+      max-width: 1200px; width: 100%; padding: 0 2rem;
+    }
+    @media (max-width: 850px) { .main-container { flex-direction: column; gap: 2rem; } }
+
+    /* === MOCKUP LILYGO TTGO T-DISPLAY === */
+    .board-wrapper { position: relative; flex-shrink: 0; }
+
+    .ttgo-board {
+      width: 220px; height: 478px;
+      background: #0c0e14; border-radius: 8px;
+      position: relative; display: flex; flex-direction: column; align-items: center;
+      border: 2px solid #1a1e2a;
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.7), 0 0 40px rgba(59,130,246,0.06);
+      transition: transform 0.3s ease;
+    }
+    .ttgo-board:hover { transform: translateY(-3px); }
+
+    .pins-col {
+      position: absolute; top: 16px; bottom: 16px; width: 18px;
+      display: flex; flex-direction: column; justify-content: space-between;
+      align-items: center; padding: 6px 0;
+    }
+    .pins-col.left { left: 4px; }
+    .pins-col.right { right: 4px; }
+
+    .pin-hole {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: radial-gradient(circle at 40% 35%, #f5e6a3, #c9a827 60%, #8b6d14 100%);
+      box-shadow: inset 0 0 2px rgba(0,0,0,0.7), 0 0 3px rgba(201,168,39,0.25);
+      position: relative;
+    }
+    .pin-hole::after {
+      content: ''; position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%,-50%); width: 3px; height: 3px;
+      border-radius: 50%; background: #1a1a1a;
+      box-shadow: inset 0 0 1px rgba(0,0,0,0.9);
+    }
+
+    .pin-label {
+      position: absolute; font-family: 'JetBrains Mono', monospace;
+      font-size: 6px; color: rgba(255,255,255,0.3); pointer-events: none;
+    }
+    .pins-col.left .pin-label { left: 14px; }
+    .pins-col.right .pin-label { right: 14px; }
+
+    .lilygo-logo {
+      position: absolute; top: 10px; left: 28px;
+      font-family: 'Inter', sans-serif; font-size: 9px; font-weight: 800;
+      color: rgba(255,255,255,0.5); letter-spacing: 0.5px;
+    }
+    .lilygo-logo sup { font-size: 5px; vertical-align: super; }
+
+    .screen-housing {
+      width: 168px; height: 296px; background: #080a10;
+      border: 1px solid #1e2030; border-radius: 4px;
+      display: flex; align-items: center; justify-content: center;
+      margin-top: 28px; box-shadow: inset 0 2px 10px rgba(0,0,0,0.9);
+      position: relative;
+    }
+
+    .ribbon-cable {
+      position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%);
+      width: 40px; height: 5px;
+      background: linear-gradient(180deg, #3a3d4a, #2a2d36);
+      border-radius: 0 0 2px 2px; box-shadow: 0 1px 2px rgba(0,0,0,0.4);
+    }
+
+    .real-screen {
+      width: 135px; height: 240px; background: #000;
+      border-radius: 2px; position: relative; overflow: hidden;
+    }
+    .real-screen::after {
+      content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0) 50%);
+      pointer-events: none; z-index: 10;
+    }
+
+    #tft-canvas { width: 135px; height: 240px; image-rendering: pixelated; display: block; }
+
+    .board-bottom {
+      width: 100%; flex: 1; position: relative;
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: flex-end; padding-bottom: 10px;
+    }
+
+    .smd-components { position: absolute; top: 20px; left: 30px; right: 30px; height: 60px; }
+    .smd-chip { position: absolute; background: #1a1e28; border: 1px solid #252a35; border-radius: 2px; }
+    .smd-chip.main { width: 28px; height: 28px; top: 5px; left: 10px; }
+    .smd-chip.small1 { width: 12px; height: 8px; top: 8px; right: 15px; }
+    .smd-chip.small2 { width: 8px; height: 8px; top: 25px; right: 20px; }
+    .smd-chip.small3 { width: 16px; height: 6px; bottom: 5px; left: 15px; }
+
+    .pcb-text {
+      font-family: 'JetBrains Mono', monospace; font-size: 6.5px;
+      color: rgba(255,255,255,0.2); position: absolute; pointer-events: none;
+    }
+    .pcb-model { bottom: 72px; left: 50%; transform: translateX(-50%); white-space: nowrap; }
+
+    .hw-buttons {
+      display: flex; gap: 70px; margin-bottom: 15px;
+      position: relative; z-index: 5;
+    }
+    .hw-btn-wrap { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+
+    .hw-btn {
+      width: 14px; height: 10px;
+      background: linear-gradient(180deg, #c0c6d0, #888e98 40%, #6e747e 100%);
+      border: 1px solid #4a4e58; border-radius: 2px; cursor: pointer;
+      box-shadow: 0 2px 3px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.25);
+      transition: all 0.05s ease; position: relative;
+    }
+    .hw-btn:active, .hw-btn.pressed {
+      transform: translateY(1px);
+      box-shadow: 0 0 1px rgba(0,0,0,0.6), inset 0 1px 2px rgba(0,0,0,0.5);
+      background: linear-gradient(180deg, #999faa, #6e747e 40%, #555a64 100%);
+    }
+    .hw-btn-label {
+      font-family: 'JetBrains Mono', monospace; font-size: 5.5px;
+      color: rgba(255,255,255,0.3); text-align: center;
+    }
+
+    .usb-c {
+      width: 32px; height: 8px;
+      background: linear-gradient(180deg, #bdc3c7, #7f8c8d 50%, #5f6b6e);
+      border: 1px solid #4a5055; border-radius: 3px;
+      position: absolute; bottom: -3px; left: 50%; transform: translateX(-50%);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    }
+    .usb-c::after {
+      content: ''; position: absolute; top: 2px; left: 50%;
+      transform: translateX(-50%); width: 16px; height: 3px;
+      background: #2c3e50; border-radius: 1px;
+    }
+
+    /* === PAINEL LATERAL === */
+    .controls-panel {
+      background: var(--card-bg); border: 1px solid var(--border-color);
+      border-radius: 16px; padding: 1.5rem; width: 380px;
+      backdrop-filter: blur(16px); box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      display: flex; flex-direction: column; gap: 1.5rem;
+    }
+    .panel-header { border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; }
+    .panel-header h2 { font-size: 1.2rem; font-weight: 600; }
+    .panel-header p { font-size: 0.8rem; color: var(--text-muted); margin-top: 0.15rem; }
+
+    .live-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; }
+
+    .stat-box {
+      background: rgba(15,23,42,0.4); border: 1px solid var(--border-color);
+      border-radius: 10px; padding: 0.75rem 0.5rem; text-align: center;
+      transition: all 0.3s ease;
+    }
+    .stat-box.low-warn {
+      border-color: rgba(239,68,68,0.4); background: rgba(239,68,68,0.05);
+      animation: alert-pulse 1.5s infinite alternate;
+    }
+    @keyframes alert-pulse {
+      0% { box-shadow: 0 0 5px rgba(239,68,68,0.1); }
+      100% { box-shadow: 0 0 15px rgba(239,68,68,0.3); }
+    }
+    .stat-label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+    .stat-value { font-size: 1.2rem; font-weight: 800; margin-top: 0.25rem; }
+    .stat-unit { font-size: 0.75rem; color: var(--text-muted); font-weight: normal; }
+
+    .config-section {
+      background: rgba(15,23,42,0.25); border: 1px solid var(--border-color);
+      border-radius: 12px; padding: 1rem; display: flex; flex-direction: column; gap: 0.75rem;
+    }
+    .config-title {
+      font-size: 0.85rem; font-weight: 600; display: flex;
+      justify-content: space-between; align-items: center;
+    }
+    .config-title span.val {
+      font-family: 'JetBrains Mono', monospace; color: var(--accent-color);
+      background: rgba(59,130,246,0.15); padding: 2px 6px;
+      border-radius: 4px; font-size: 0.8rem;
+    }
+    .speed-slider {
+      width: 100%; -webkit-appearance: none; height: 6px;
+      border-radius: 3px; background: #1e293b; outline: none; cursor: pointer;
+    }
+    .speed-slider::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 16px; height: 16px;
+      border-radius: 50%; background: var(--accent-color);
+      box-shadow: 0 0 8px var(--accent-glow); transition: transform 0.1s;
+    }
+    .speed-slider::-webkit-slider-thumb:hover { transform: scale(1.2); }
+
+    .shortcuts {
+      background: rgba(30,41,59,0.3); border: 1px dashed var(--border-color);
+      border-radius: 10px; padding: 0.75rem 1rem;
+    }
+    .shortcut-row {
+      display: flex; justify-content: space-between; font-size: 0.8rem;
+      margin-bottom: 0.4rem; color: var(--text-muted);
+    }
+    .shortcut-row:last-child { margin-bottom: 0; }
+    .key-badge {
+      font-family: 'JetBrains Mono', monospace; background: #1e293b;
+      border: 1px solid rgba(255,255,255,0.15); border-radius: 4px;
+      padding: 1px 6px; color: var(--text-main); font-size: 0.75rem;
+      box-shadow: 0 2px 0 rgba(0,0,0,0.5);
+    }
+
+    .screen-mode-badge {
+      display: inline-block; padding: 4px 10px; border-radius: 6px;
+      font-size: 0.75rem; font-weight: 600; font-family: 'JetBrains Mono', monospace;
+      text-transform: uppercase; letter-spacing: 0.05em; transition: all 0.3s ease;
+    }
+    .screen-mode-badge.pet {
+      background: rgba(34,197,94,0.15); color: #22c55e; border: 1px solid rgba(34,197,94,0.3);
+    }
+    .screen-mode-badge.status {
+      background: rgba(59,130,246,0.15); color: #3b82f6; border: 1px solid rgba(59,130,246,0.3);
+    }
+    .screen-mode-badge.gameover {
+      background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.3);
+    }
+
+    .btn-reset {
+      width: 100%;
+      background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+      color: white; border: none; padding: 0.75rem;
+      font-size: 0.9rem; font-weight: 600; border-radius: 10px;
+      cursor: pointer; box-shadow: 0 4px 12px rgba(239,68,68,0.2);
+      transition: all 0.2s;
+    }
+    .btn-reset:hover { filter: brightness(1.1); box-shadow: 0 6px 16px rgba(239,68,68,0.35); }
+    .btn-reset:active { transform: translateY(1px); }
+
+    footer.credits {
+      margin-top: 3rem; font-size: 0.75rem; color: var(--text-muted);
+      text-align: center; padding-bottom: 2rem;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>LilyGO TTGO T-Display ESP32</h1>
+    <p>Simulador Interativo de Tamagotchi em C++ (Web Preview)</p>
+  </header>
+
+  <div class="main-container">
+    <!-- === MOCKUP DA PLACA === -->
+    <div class="board-wrapper">
+      <div class="ttgo-board" id="hardware-board">
+        <div class="lilygo-logo">LILYGO<sup>�</sup></div>
+        <div class="pins-col left" id="pins-left"></div>
+        <div class="pins-col right" id="pins-right"></div>
+
+        <div class="screen-housing">
+          <div class="real-screen">
+            <canvas id="tft-canvas" width="135" height="240"></canvas>
+          </div>
+          <div class="ribbon-cable"></div>
+        </div>
+
+        <div class="board-bottom">
+          <div class="smd-components">
+            <div class="smd-chip main"></div>
+            <div class="smd-chip small1"></div>
+            <div class="smd-chip small2"></div>
+            <div class="smd-chip small3"></div>
+          </div>
+          <div class="pcb-text pcb-model">T-DISPLAY V1.1</div>
+          <div class="hw-buttons">
+            <div class="hw-btn-wrap">
+              <div class="hw-btn" id="btn-esq" title="GPIO 0 - Segurar: Status / Toque: Comer"></div>
+              <div class="hw-btn-label">IO0</div>
+            </div>
+            <div class="hw-btn-wrap">
+              <div class="hw-btn" id="btn-dir" title="GPIO 35 - Brincar / Reviver"></div>
+              <div class="hw-btn-label">IO35</div>
+            </div>
+          </div>
+          <div class="usb-c"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- === PAINEL DE CONTROLE === -->
+    <div class="controls-panel">
+      <div class="panel-header">
+        <h2>Monitor de Variǭveis</h2>
+        <p>Valores internos da simula�ǜo em tempo real</p>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <span style="font-size:0.8rem; color:var(--text-muted);">Tela Atual:</span>
+        <span class="screen-mode-badge pet" id="screen-badge">�Y?� Pet</span>
+      </div>
+
+      <div class="live-stats">
+        <div class="stat-box" id="stat-fome-box">
+          <div class="stat-label">Fome</div>
+          <div class="stat-value"><span id="live-fome">100</span><span class="stat-unit">%</span></div>
+        </div>
+        <div class="stat-box" id="stat-felicidade-box">
+          <div class="stat-label">Diversǜo</div>
+          <div class="stat-value"><span id="live-felicidade">100</span><span class="stat-unit">%</span></div>
+        </div>
+        <div class="stat-box" id="stat-idade-box">
+          <div class="stat-label">Score/Idade</div>
+          <div class="stat-value"><span id="live-idade">0</span><span class="stat-unit"> min</span></div>
+        </div>
+      </div>
+
+      <div class="config-section">
+        <div class="config-title">
+          Velocidade do Tempo
+          <span class="val" id="speed-indicator">1x (Padrǜo)</span>
+        </div>
+        <input type="range" class="speed-slider" id="speed-slider" min="1" max="20" value="1">
+      </div>
+
+      <div class="shortcuts">
+        <div class="config-title" style="margin-bottom: 0.5rem; font-size: 0.8rem;">Atalhos no Teclado</div>
+        <div class="shortcut-row">
+          <span>Segurar p/ Status:</span>
+          <div><kbd class="key-badge">�?</kbd> ou <kbd class="key-badge">A</kbd> (segurar)</div>
+        </div>
+        <div class="shortcut-row">
+          <span>Abrir Menu / Navegar:</span>
+          <div><kbd class="key-badge">�?</kbd> ou <kbd class="key-badge">A</kbd> (clique)</div>
+        </div>
+        <div class="shortcut-row">
+          <span>Selecionar Op�ǜo:</span>
+          <div><kbd class="key-badge">�'</kbd> ou <kbd class="key-badge">D</kbd></div>
+        </div>
+      </div>
+
+      <button class="btn-reset" id="btn-reset-virtual">For�ar Morte / Resetar</button>
+    </div>
+  </div>
+
+  <footer class="credits">
+    Simula�ǜo local do c�digo C++ para Arduino �?� LilyGO TTGO T-Display ESP32
+  </footer>
+
+  <script>
+    // =============================================
+    // BITMAP FONT 5x7 (rǸplica do TFT_eSPI)
+    // =============================================
+    const FONT_5x7 = {
+      32:[0x00,0x00,0x00,0x00,0x00],33:[0x00,0x00,0x5F,0x00,0x00],
+      34:[0x00,0x07,0x00,0x07,0x00],37:[0x23,0x13,0x08,0x64,0x62],
+      40:[0x00,0x1C,0x22,0x41,0x00],41:[0x00,0x41,0x22,0x1C,0x00],
+      45:[0x08,0x08,0x08,0x08,0x08],46:[0x00,0x60,0x60,0x00,0x00],
+      47:[0x20,0x10,0x08,0x04,0x02],
+      48:[0x3E,0x51,0x49,0x45,0x3E],49:[0x00,0x42,0x7F,0x40,0x00],
+      50:[0x42,0x61,0x51,0x49,0x46],51:[0x21,0x41,0x45,0x4B,0x31],
+      52:[0x18,0x14,0x12,0x7F,0x10],53:[0x27,0x45,0x45,0x45,0x39],
+      54:[0x3C,0x4A,0x49,0x49,0x30],55:[0x01,0x71,0x09,0x05,0x03],
+      56:[0x36,0x49,0x49,0x49,0x36],57:[0x06,0x49,0x49,0x29,0x1E],
+      58:[0x00,0x36,0x36,0x00,0x00],
+      60:[0x08,0x14,0x22,0x41,0x00],62:[0x00,0x41,0x22,0x14,0x08],
+      65:[0x7E,0x11,0x11,0x11,0x7E],66:[0x7F,0x49,0x49,0x49,0x36],
+      67:[0x3E,0x41,0x41,0x41,0x22],68:[0x7F,0x41,0x41,0x22,0x1C],
+      69:[0x7F,0x49,0x49,0x49,0x41],70:[0x7F,0x09,0x09,0x09,0x01],
+      71:[0x3E,0x41,0x49,0x49,0x7A],72:[0x7F,0x08,0x08,0x08,0x7F],
+      73:[0x00,0x41,0x7F,0x41,0x00],74:[0x20,0x40,0x41,0x3F,0x01],
+      75:[0x7F,0x08,0x14,0x22,0x41],76:[0x7F,0x40,0x40,0x40,0x40],
+      77:[0x7F,0x02,0x0C,0x02,0x7F],78:[0x7F,0x04,0x08,0x10,0x7F],
+      79:[0x3E,0x41,0x41,0x41,0x3E],80:[0x7F,0x09,0x09,0x09,0x06],
+      82:[0x7F,0x09,0x19,0x29,0x46],83:[0x46,0x49,0x49,0x49,0x31],
+      84:[0x01,0x01,0x7F,0x01,0x01],85:[0x3F,0x40,0x40,0x40,0x3F],
+      86:[0x1F,0x20,0x40,0x20,0x1F],87:[0x3F,0x40,0x38,0x40,0x3F],
+      88:[0x63,0x14,0x08,0x14,0x63],89:[0x07,0x08,0x70,0x08,0x07],
+      90:[0x61,0x51,0x49,0x45,0x43],95:[0x80,0x80,0x80,0x80,0x80],
+      97:[0x20,0x54,0x54,0x54,0x78],98:[0x7F,0x48,0x44,0x44,0x38],
+      99:[0x38,0x44,0x44,0x44,0x20],100:[0x38,0x44,0x44,0x48,0x7F],
+      101:[0x38,0x54,0x54,0x54,0x18],102:[0x08,0x7E,0x09,0x01,0x02],
+      103:[0x0C,0x52,0x52,0x52,0x3E],104:[0x7F,0x08,0x04,0x04,0x78],
+      105:[0x00,0x44,0x7D,0x40,0x00],106:[0x20,0x40,0x44,0x3D,0x00],
+      107:[0x7F,0x10,0x28,0x44,0x00],108:[0x00,0x41,0x7F,0x40,0x00],
+      109:[0x7C,0x04,0x18,0x04,0x78],110:[0x7C,0x08,0x04,0x04,0x78],
+      111:[0x38,0x44,0x44,0x44,0x38],112:[0x7C,0x14,0x14,0x14,0x08],
+      113:[0x08,0x14,0x14,0x18,0x7C],114:[0x7C,0x08,0x04,0x04,0x08],
+      115:[0x48,0x54,0x54,0x54,0x20],116:[0x04,0x3F,0x44,0x40,0x20],
+      117:[0x3C,0x40,0x40,0x20,0x7C],118:[0x1C,0x20,0x40,0x20,0x1C],
+      119:[0x3C,0x40,0x30,0x40,0x3C],120:[0x44,0x28,0x10,0x28,0x44],
+      121:[0x0C,0x50,0x50,0x50,0x3C],122:[0x44,0x64,0x54,0x4C,0x44],
+      124:[0x00,0x00,0x7F,0x00,0x00],
+    };
+
+    const canvas = document.getElementById('tft-canvas');
+    const ctx = canvas.getContext('2d');
+
+    function drawChar(ch, x, y, color, size) {
+      const glyph = FONT_5x7[ch.charCodeAt(0)];
+      if (!glyph) return;
+      ctx.fillStyle = color;
+      for (let col = 0; col < 5; col++) {
+        let line = glyph[col];
+        for (let row = 0; row < 7; row++) {
+          if (line & 0x01) ctx.fillRect(x + col * size, y + row * size, size, size);
+          line >>= 1;
+        }
+      }
+    }
+
+    function drawText(str, x, y, color, size) {
+      x = x * 5;
+      y = y * 5;
+      for (let i = 0; i < str.length; i++) drawChar(str[i], x + i * 6 * size, y, color, size);
+    }
+
+    // =============================================
+    // =============================================
+    // SPRITE CACHE
+    // =============================================
+    const spriteCache = new Map();
+    function getSpriteImage(spriteArray, w, h) {
+      if (spriteCache.has(spriteArray)) {
+        return spriteCache.get(spriteArray);
+      }
+      const c = document.createElement('canvas');
+      c.width = w; c.height = h;
+      const tCtx = c.getContext('2d');
+      const img = tCtx.createImageData(w, h);
+      for (let i = 0; i < spriteArray.length; i++) {
+        const v = spriteArray[i], idx = i * 4;
+        if (v === 0x0000) { 
+          img.data[idx]=0; img.data[idx+1]=0; img.data[idx+2]=0; img.data[idx+3]=0; 
+        } else {
+          img.data[idx]=((v>>11)&0x1F)<<3; img.data[idx+1]=((v>>5)&0x3F)<<2;
+          img.data[idx+2]=(v&0x1F)<<3; img.data[idx+3]=255;
+        }
+      }
+      tCtx.putImageData(img, 0, 0);
+      spriteCache.set(spriteArray, c);
+      return c;
+    }
+    
+    function getPetSprite() {
+      if (idade < 1) {
+        return { img: getSpriteImage(ovo_sprite, ovo_width, ovo_height), w: ovo_width, h: ovo_height };
+      } else {
+        return { img: getSpriteImage(capivara_sprite, capivara_width, capivara_height), w: capivara_width, h: capivara_height };
+      }
+    }
+
+    // =============================================
+    // HELPERS DE DESENHO
+    function fillSprite(color) { ctx.fillStyle = color; ctx.fillRect(0,0,135,240); }
+    function fillRect(x,y,w,h,color) { ctx.fillStyle=color; ctx.fillRect(x*5,y*5,w*5,h*5); }
+    function drawRect(x,y,w,h,color) { ctx.strokeStyle=color; ctx.lineWidth=1; ctx.strokeRect(x*5,y*5,w*5,h*5); }
+    function drawHLine(x,y,w,color) { fillRect(x,y,w,1,color); }
+    function mapVal(x,a,b,c,d) { return Math.round((x-a)*(d-c)/(b-a)+c); }
+
+
+
+    // =============================================
+    // AUDIO API (Sons)
+    // =============================================
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function tocarSom(freq, dur) {
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'square';
+      osc.frequency.value = freq;
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + dur/1000);
+      osc.stop(audioCtx.currentTime + dur/1000);
+    }
+
+    function tocarSomBeep() { tocarSom(1000, 50); }
+    function tocarSomPulo() { tocarSom(600, 100); setTimeout(() => tocarSom(800, 100), 100); }
+    function tocarSomSucesso() { tocarSom(1000, 100); setTimeout(() => tocarSom(1200, 150), 100); setTimeout(() => tocarSom(1500, 300), 250); }
+    function tocarSomFalha() { tocarSom(300, 200); setTimeout(() => tocarSom(200, 300), 200); }
+
+    // =============================================
+    // ESTADO DO JOGO
+    // =============================================
+    let fome = 100, felicidade = 100, idade = 0, vivo = true;
+    
+    // Carregar progresso salvo
+    const salvoFome = localStorage.getItem('pet_fome');
+    if (salvoFome !== null) {
+      fome = parseInt(salvoFome);
+      felicidade = parseInt(localStorage.getItem('pet_felicidade'));
+      idade = parseInt(localStorage.getItem('pet_idade'));
+      vivo = localStorage.getItem('pet_vivo') === 'true';
+    }
+
+    function salvarProgresso() {
+      localStorage.setItem('pet_fome', fome);
+      localStorage.setItem('pet_felicidade', felicidade);
+      localStorage.setItem('pet_idade', idade);
+      localStorage.setItem('pet_vivo', vivo);
+    }
+
+    let speedMultiplier = 1;
+    const TICK_INTERVAL = 5000;
+
+    // Mǭquina de Estados
+    const TELA_PET = 0, TELA_MENU = 1, TELA_STATUS = 2, TELA_GAMEOVER = 3, TELA_COMER = 4, TELA_MSG_SUCESSO = 5, TELA_CARINHO = 6;
+    const TELA_SUBMENU_COMER = 7, TELA_SUBMENU_BRINCAR = 8, TELA_PULAR = 9;
+    let estadoAtual = TELA_PET;
+    
+    let cliquesComida = 0;
+    let cliquesCarinho = 0;
+    let ultimoTremorComida = 0;
+    let ultimoCliqueCarinho = 0;
+    let tempoMensagemSucesso = 0;
+    let msgSucessoTitulo = "";
+    let msgSucessoSub = "";
+    
+    let menuCursor = 0;
+    const MENU_TOTAL = 3;
+    const menuOpcoes = ['Comer', 'Brincar', 'Voltar'];
+
+    let subMenuCursor = 0;
+    const SUBMENU_TOTAL = 2;
+    const menuComida = ['Maca', 'Doce'];
+    const menuBrincar = ['Carinho', 'Pular'];
+    let comidaSelecionada = 0;
+
+    // Minigame Pular
+    let pularY = 0;
+    let isPular = false;
+    let tempoPulo = 0;
+    let obsX = 27;
+    let obsCount = 0;
+    let hitObs = false;
+    let ultimoMoveObs = 0;
+
+    // =============================================
+    // TELA PET (principal)
+    // =============================================
+    function desenharTelaPet(now) {
+      const respY = Math.round(Math.sin(now / 800) * 1);
+      const pet = getPetSprite();
+      const x = Math.floor((27 - pet.w) / 2);
+      const y = Math.floor((48 - pet.h) / 2) + respY;
+
+      if (fome < 30 || felicidade < 30) {
+        drawText('(o_O)', 4, 21 + respY, '#ff9f43', 1);
+      } else {
+        ctx.imageSmoothingEnabled = false;
+        ctx.drawImage(pet.img, x*5, y*5, pet.w*5, pet.h*5);
+      }
+    }
+
+    // =============================================
+    // TELA MENU (tela cheia com opções)
+    // =============================================
+    function desenharMenu() {
+      for (let i = 0; i < MENU_TOTAL; i++) {
+        const y = 9 + i * 9;
+        if (i === menuCursor) {
+          fillRect(2, y - 1, 23, 6, '#ffffff');
+          drawText(menuOpcoes[i] === 'Brincar' ? 'Jogar' : menuOpcoes[i], 4, y, '#000000', 1);
+        } else {
+          drawText(menuOpcoes[i] === 'Brincar' ? 'Jogar' : menuOpcoes[i], 4, y, '#ffffff', 1);
+        }
+      }
+    }
+
+    // =============================================
+    // TELA STATUS
+    // =============================================
+    function desenharTelaStatus() {
+      drawText('STAT', 5, 2, '#00ffff', 1);
+      drawHLine(2, 6, 23, '#424242');
+
+      const minutos = Math.floor((idade * 5) / 60);
+      drawText('Id:' + minutos + 'm', 2, 9, '#ffffff', 1);
+
+      drawText('Fome', 2, 16, '#ffffff', 1);
+      const corFome = fome > 50 ? '#00ff00' : (fome > 25 ? '#ffff00' : '#ff0000');
+      drawText(fome + '%', 17, 16, corFome, 1);
+      fillRect(2, 20, 23, 3, '#ffffff');
+      const fomeW = Math.round((fome/100)*21);
+      if (fomeW > 0) fillRect(3, 21, fomeW, 1, corFome);
+
+      drawText('Felz', 2, 27, '#ffffff', 1);
+      const corFel = felicidade > 50 ? '#001fff' : (felicidade > 25 ? '#ffff00' : '#ff0000');
+      drawText(felicidade + '%', 17, 27, corFel, 1);
+      fillRect(2, 31, 23, 3, '#ffffff');
+      const felW = Math.round((felicidade/100)*21);
+      if (felW > 0) fillRect(3, 32, felW, 1, corFel);
+    }
+
+    // =============================================
+    // DESENHO DE CORAÇÃO E TELA DE CARINHO
+    // =============================================
+    function desenharCoracao(cx, cy) {
+      fillRect(cx-1, cy-1, 1, 1, '#ff007f');
+      fillRect(cx+1, cy-1, 1, 1, '#ff007f');
+      fillRect(cx-2, cy, 5, 1, '#ff007f');
+      fillRect(cx-1, cy+1, 3, 1, '#ff007f');
+      fillRect(cx, cy+2, 1, 1, '#ff007f');
+    }
+
+    function desenharTelaCarinho(now) {
+      const respY = Math.round(Math.sin(now / 800) * 1);
+      const pet = getPetSprite();
+      const x = Math.floor((27 - pet.w) / 2);
+      const y = Math.floor((48 - pet.h) / 2) + respY;
+      let offsetX = 0; let offsetY = 0;
+
+      if (now - ultimoCliqueCarinho < 150) {
+        offsetX = Math.floor(Math.random() * 3) - 1;
+        offsetY = Math.floor(Math.random() * 3) - 1;
+      }
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(pet.img, (x + offsetX)*5, (y + offsetY)*5, pet.w*5, pet.h*5);
+
+      if (now - ultimoCliqueCarinho < 450) {
+        const progresso = (now - ultimoCliqueCarinho) / 450;
+        const deltaY = Math.floor(progresso * 8);
+        desenharCoracao(x - 3, y + 5 - deltaY);
+        desenharCoracao(x + pet.w + 3, y + 2 - deltaY);
+      }
+    }
+
+    // =============================================
+    // TELA DO MINIJOGO DE COMER
+    // =============================================
+    function desenharTelaComer() {
+      if (cliquesComida >= 0 && cliquesComida < 10) {
+        let cx = 13; let cy = 24; const raio = 6;
+        const agora = performance.now();
+        if (agora - ultimoTremorComida < 150) {
+          cx += Math.floor(Math.random() * 3) - 1; cy += Math.floor(Math.random() * 3) - 1;
+        }
+
+        if (comidaSelecionada === 0) {
+          fillRect(cx, cy - raio - 2, 1, 3, '#5c4033'); // Cabinho
+          fillRect(cx + 1, cy - raio - 1, 2, 1, '#00ff00'); // Folha
+          fillRect(cx - 2, cy - 2, 5, 5, '#ff0000'); // Corpo
+        } else {
+          fillRect(cx - 1, cy - 1, 3, 3, '#ff00ff');
+          drawRect(cx - 3, cy - 3, 7, 7, '#ffffff');
+          fillRect(cx - 5, cy, 2, 1, '#ff00ff');
+          fillRect(cx + 4, cy, 2, 1, '#ff00ff');
+        }
+
+        if (cliquesComida >= 3 && cliquesComida < 6) {
+          fillRect(cx + 2, cy - raio - 2, 9, 2*raio+4, '#000000');
+        } else if (cliquesComida >= 6 && cliquesComida < 10) {
+          fillRect(cx - 3, cy - raio - 2, 14, 2*raio+4, '#000000');
+        }
+      }
+    }
+
+    // =============================================
+    // TELA DOS SUBMENUS
+    // =============================================
+    function desenharSubMenu(titulo, opcoes, total) {
+      drawText(titulo, 5, 2, '#00ffff', 1);
+      drawHLine(2, 6, 23, '#424242');
+
+      for (let i = 0; i < total; i++) {
+        const y = 11 + i * 9;
+        if (i === subMenuCursor) {
+          fillRect(2, y - 1, 23, 6, '#ffffff');
+          drawText(opcoes[i], 4, y, '#000000', 1);
+        } else {
+          drawText(opcoes[i], 4, y, '#ffffff', 1);
+        }
+      }
+    }
+
+    // =============================================
+    // TELA PULAR
+    // =============================================
+    function desenharTelaPular(now) {
+      drawHLine(0, 36, 27, '#ffffff');
+      drawText('P:' + obsCount, 1, 1, '#ffffff', 1);
+
+      const pet = getPetSprite();
+      const x = 6; 
+      const y = 36 - pet.h + pularY;
+      
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(pet.img, x*5, y*5, pet.w*5, pet.h*5);
+      fillRect(obsX, 32, 4, 4, '#ff0000');
+    }
+
+    // =============================================
+    // TELA DE MENSAGEM DE SUCESSO TEMPORÁRIA
+    // =============================================
+    function desenharMensagemSucesso() {
+      drawText(msgSucessoTitulo, 5, 16, '#00ff00', 1);
+      drawText(msgSucessoSub, 3, 26, '#ffffff', 1);
+    }
+
+    // =============================================
+    // TELA GAME OVER
+    // =============================================
+    function desenharGameOver() {
+      const w = lapide_width, h = lapide_height;
+      const x = Math.floor((27 - w) / 2);
+      const y = 8;
+      
+      const lapideImg = getSpriteImage(lapide_sprite, w, h);
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(lapideImg, x*5, y*5, w*5, h*5);
+      
+      drawText('MORTO', 4, y + h + 2, '#ff0000', 1);
+      const minutos = Math.floor((idade * 5) / 60);
+      drawText(minutos + 'm', 4, y + h + 8, '#ffffff', 1);
+    }
+
+    // =============================================
+    // RENDER LOOP
+    // =============================================
+    function render() {
+      fillSprite('#000000');
+      const now = performance.now();
+
+      if (estadoAtual === TELA_MSG_SUCESSO && (now - tempoMensagemSucesso > 1500)) {
+        estadoAtual = TELA_PET;
+      }
+      
+      // L�gica do Minijogo de Pular
+      if (estadoAtual === TELA_PULAR) {
+        if (now - ultimoMoveObs > 50) {
+          ultimoMoveObs = now;
+          if (!hitObs) {
+            obsX -= 2;
+            if (isPular) {
+              const tPulo = now - tempoPulo;
+              if (tPulo < 250) {
+                pularY = -5;
+              } else if (tPulo < 500) {
+                pularY = 0;
+              } else {
+                isPular = false;
+              }
+            }
+            if (obsX > 8 && obsX < 15 && pularY === 0) {
+              hitObs = true;
+              tocarSomFalha();
+              fome -= 10;
+              felicidade -= 10;
+              estadoAtual = TELA_MSG_SUCESSO;
+              tempoMensagemSucesso = now;
+              msgSucessoTitulo = "Ops!";
+              msgSucessoSub = "Bateu :(";
+              salvarProgresso();
+            }
+            if (obsX < -4 && !hitObs) {
+              obsX = 27;
+              obsCount++;
+              if (obsCount >= 5) {
+                felicidade = Math.min(100, felicidade + 20);
+                estadoAtual = TELA_MSG_SUCESSO;
+                tempoMensagemSucesso = now;
+                msgSucessoTitulo = "Uhuu!";
+                msgSucessoSub = "+ feliz";
+                tocarSomSucesso();
+                salvarProgresso();
+              }
+            }
+          }
+        }
+      }
+
+      switch (estadoAtual) {
+        case TELA_PET:      desenharTelaPet(now); break;
+        case TELA_MENU:     desenharMenu(); break;
+        case TELA_STATUS:   desenharTelaStatus(); break;
+        case TELA_GAMEOVER: desenharGameOver(); break;
+        case TELA_COMER:    desenharTelaComer(); break;
+        case TELA_MSG_SUCESSO: desenharMensagemSucesso(); break;
+        case TELA_CARINHO:  desenharTelaCarinho(now); break;
+        case TELA_SUBMENU_COMER: desenharSubMenu("COMIDA", menuComida, SUBMENU_TOTAL); break;
+        case TELA_SUBMENU_BRINCAR: desenharSubMenu("BRINCAR", menuBrincar, SUBMENU_TOTAL); break;
+        case TELA_PULAR:    desenharTelaPular(now); break;
+      }
+
+      // Atualiza painel lateral
+      document.getElementById('live-fome').textContent = fome;
+      document.getElementById('live-felicidade').textContent = felicidade;
+      const minutos = Math.floor((idade * 5) / 60);
+      document.getElementById('live-idade').textContent = minutos;
+
+      document.getElementById('stat-fome-box').classList.toggle('low-warn', fome < 40 && vivo);
+      document.getElementById('stat-felicidade-box').classList.toggle('low-warn', felicidade < 40 && vivo);
+
+      // Badge de tela
+      const badge = document.getElementById('screen-badge');
+      const badgeMap = {
+        [TELA_PET]:      { text: '🐾 Pet',       cls: 'screen-mode-badge pet' },
+        [TELA_MENU]:     { text: '📋 Menu',      cls: 'screen-mode-badge status' },
+        [TELA_STATUS]:   { text: '📊 Status',    cls: 'screen-mode-badge status' },
+        [TELA_GAMEOVER]: { text: '💀 Game Over', cls: 'screen-mode-badge gameover' },
+        [TELA_COMER]:    { text: '🍎 Comendo',   cls: 'screen-mode-badge status' },
+        [TELA_MSG_SUCESSO]: { text: '🎉 Sucesso',  cls: 'screen-mode-badge pet' },
+        [TELA_CARINHO]:  { text: '💖 Carinho',   cls: 'screen-mode-badge status' },
+        [TELA_SUBMENU_COMER]: { text: '🍎 Comida', cls: 'screen-mode-badge status' },
+        [TELA_SUBMENU_BRINCAR]: { text: '🎮 Brincar', cls: 'screen-mode-badge status' },
+        [TELA_PULAR]:    { text: '🏃 Pular', cls: 'screen-mode-badge status' },
+      };
+      const b = badgeMap[estadoAtual] || { text: '❓ ' + estadoAtual, cls: 'screen-mode-badge status' };
+      badge.textContent = b.text;
+      badge.className = b.cls;
+
+      requestAnimationFrame(render);
+    }
+
+    // =============================================
+    // GAME TICK
+    // =============================================
+    function gameTick() {
+      if (vivo) {
+        fome -= 1;
+        felicidade -= 2;
+        idade++;
+        if (fome <= 0 || felicidade <= 0) {
+          fome = Math.max(0, fome);
+          felicidade = Math.max(0, felicidade);
+          vivo = false;
+          estadoAtual = TELA_GAMEOVER;
+          tocarSomFalha();
+        }
+        salvarProgresso();
+      }
+    }
+
+    let gameIntervalId = null;
+    function startTimer() {
+      if (gameIntervalId) clearInterval(gameIntervalId);
+      gameIntervalId = setInterval(gameTick, TICK_INTERVAL / speedMultiplier);
+    }
+
+    // =============================================
+    // A�ES DO MENU
+    // =============================================
+    function executarMenuAcao() {
+      tocarSomBeep();
+      switch (menuCursor) {
+        case 0:
+          subMenuCursor = 0;
+          estadoAtual = TELA_SUBMENU_COMER;
+          break;
+        case 1:
+          subMenuCursor = 0;
+          estadoAtual = TELA_SUBMENU_BRINCAR;
+          break;
+        case 2:
+          estadoAtual = TELA_PET;
+          break;
+      }
+    }
+    
+    function executarSubMenuComida() {
+      tocarSomBeep();
+      comidaSelecionada = subMenuCursor;
+      cliquesComida = 0;
+      estadoAtual = TELA_COMER;
+    }
+    
+    function executarSubMenuBrincar() {
+      tocarSomBeep();
+      if (subMenuCursor === 0) {
+        cliquesCarinho = 0;
+        estadoAtual = TELA_CARINHO;
+      } else {
+        obsX = 27;
+        obsCount = 0;
+        isPular = false;
+        hitObs = false;
+        pularY = 0;
+        estadoAtual = TELA_PULAR;
+      }
+    }
+
+    function reiniciarJogo() {
+      fome = 100; felicidade = 100; idade = 0; vivo = true;
+      estadoAtual = TELA_PET;
+    }
+
+    // =============================================
+    // M�?QUINA DE ESTADOS - INPUT
+    // =============================================
+    function pressBtn(id) {
+      const b = document.getElementById(id);
+      b.classList.add('pressed');
+      setTimeout(() => b.classList.remove('pressed'), 100);
+    }
+
+    let holdTimeout = null;
+    let segurandoStatus = false;
+    let botaoEsqPressionado = false;
+
+    function iniciarHoldEsquerdo() {
+      if (!vivo) {
+        botaoEsqPressionado = true;
+        return;
+      }
+      botaoEsqPressionado = true;
+      segurandoStatus = false;
+
+      if (estadoAtual === TELA_STATUS) return;
+
+      holdTimeout = setTimeout(() => {
+        if (botaoEsqPressionado && vivo && (estadoAtual === TELA_PET || estadoAtual === TELA_MENU)) {
+          segurandoStatus = true;
+          estadoAtual = TELA_STATUS;
+        }
+      }, 400);
+    }
+
+    function liberarEsquerdo() {
+      if (!botaoEsqPressionado) return;
+      botaoEsqPressionado = false;
+
+      if (holdTimeout) {
+        clearTimeout(holdTimeout);
+        holdTimeout = null;
+      }
+
+      if (segurandoStatus) {
+        segurandoStatus = false;
+        if (estadoAtual === TELA_STATUS) {
+          estadoAtual = TELA_PET;
+        }
+      } else {
+        executarCliqueEsquerdo();
+      }
+    }
+
+    function executarCliqueEsquerdo() {
+      switch (estadoAtual) {
+        case TELA_PET:
+          estadoAtual = TELA_MENU;
+          menuCursor = 0;
+          break;
+        case TELA_MENU:
+          menuCursor = (menuCursor + 1) % MENU_TOTAL;
+          break;
+        case TELA_STATUS:
+          estadoAtual = TELA_PET;
+          break;
+        case TELA_GAMEOVER:
+          reiniciarJogo();
+          break;
+        case TELA_COMER:
+          ultimoTremorComida = performance.now();
+          cliquesComida++;
+          if (cliquesComida >= 10) {
+            if (comidaSelecionada === 0) {
+              fome += 15;
+              msgSucessoTitulo = "Nham!";
+              msgSucessoSub = "+ fome";
+            } else {
+              fome += 5;
+              felicidade += 10;
+              msgSucessoTitulo = "Doce!";
+              msgSucessoSub = "+ feliz";
+            }
+            fome = Math.min(100, fome);
+            felicidade = Math.min(100, felicidade);
+            estadoAtual = TELA_MSG_SUCESSO;
+            tempoMensagemSucesso = performance.now();
+            tocarSomSucesso();
+            salvarProgresso();
+          } else {
+            tocarSomBeep();
+          }
+          break;
+        case TELA_CARINHO:
+          ultimoCliqueCarinho = performance.now();
+          cliquesCarinho++;
+          if (cliquesCarinho >= 10) {
+            felicidade = Math.min(100, felicidade + 15);
+            estadoAtual = TELA_MSG_SUCESSO;
+            tempoMensagemSucesso = performance.now();
+            msgSucessoTitulo = "Eba!";
+            msgSucessoSub = "+ carinho";
+            tocarSomSucesso();
+            salvarProgresso();
+          } else {
+            tocarSomBeep();
+          }
+          break;
+        case TELA_SUBMENU_COMER:
+        case TELA_SUBMENU_BRINCAR:
+          subMenuCursor = (subMenuCursor + 1) % SUBMENU_TOTAL;
+          tocarSomBeep();
+          break;
+        case TELA_PULAR:
+          estadoAtual = TELA_PET;
+          tocarSomBeep();
+          break;
+      }
+    }
+
+    // =============================================
+    // EVENT LISTENERS
+    // =============================================
+    const btnEsq = document.getElementById('btn-esq');
+    const btnDir = document.getElementById('btn-dir');
+
+    function onPressEsqStart(e) {
+      if (e) e.preventDefault();
+      btnEsq.classList.add('pressed');
+      iniciarHoldEsquerdo();
+    }
+
+    function onPressEsqEnd(e) {
+      if (e) e.preventDefault();
+      btnEsq.classList.remove('pressed');
+      liberarEsquerdo();
+    }
+
+    btnEsq.addEventListener('mousedown', onPressEsqStart);
+    btnEsq.addEventListener('touchstart', onPressEsqStart, { passive: false });
+    
+    window.addEventListener('mouseup', onPressEsqEnd);
+    window.addEventListener('touchend', onPressEsqEnd, { passive: false });
+    window.addEventListener('touchcancel', onPressEsqEnd, { passive: false });
+
+    function onBtnDireito() {
+      pressBtn('btn-dir');
+      switch (estadoAtual) {
+        case TELA_MENU:
+          executarMenuAcao();
+          break;
+        case TELA_STATUS:
+          estadoAtual = TELA_PET;
+          break;
+        case TELA_GAMEOVER:
+          reiniciarJogo();
+          break;
+        case TELA_COMER:
+          ultimoTremorComida = performance.now();
+          cliquesComida++;
+          if (cliquesComida >= 10) {
+            if (comidaSelecionada === 0) {
+              fome += 15;
+              msgSucessoTitulo = "Nham!";
+              msgSucessoSub = "+ fome";
+            } else {
+              fome += 5;
+              felicidade += 10;
+              msgSucessoTitulo = "Doce!";
+              msgSucessoSub = "+ feliz";
+            }
+            fome = Math.min(100, fome);
+            felicidade = Math.min(100, felicidade);
+            estadoAtual = TELA_MSG_SUCESSO;
+            tempoMensagemSucesso = performance.now();
+            tocarSomSucesso();
+            salvarProgresso();
+          } else {
+            tocarSomBeep();
+          }
+          break;
+        case TELA_CARINHO:
+          ultimoCliqueCarinho = performance.now();
+          cliquesCarinho++;
+          if (cliquesCarinho >= 10) {
+            felicidade = Math.min(100, felicidade + 15);
+            estadoAtual = TELA_MSG_SUCESSO;
+            tempoMensagemSucesso = performance.now();
+            msgSucessoTitulo = "Eba!";
+            msgSucessoSub = "+ carinho";
+            tocarSomSucesso();
+            salvarProgresso();
+          } else {
+            tocarSomBeep();
+          }
+          break;
+        case TELA_SUBMENU_COMER:
+          executarSubMenuComida();
+          break;
+        case TELA_SUBMENU_BRINCAR:
+          executarSubMenuBrincar();
+          break;
+        case TELA_PULAR:
+          if (!isPular && !hitObs) {
+            isPular = true;
+            tempoPulo = performance.now();
+            tocarSomPulo();
+          }
+          break;
+        default:
+          break;
+      }
+    }
+
+    btnDir.addEventListener('click', onBtnDireito);
+
+    window.addEventListener('keydown', (e) => {
+      if (e.repeat) return;
+      if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
+        btnEsq.classList.add('pressed');
+        iniciarHoldEsquerdo();
+      }
+      if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
+        onBtnDireito();
+      }
+    });
+
+    window.addEventListener('keyup', (e) => {
+      if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
+        btnEsq.classList.remove('pressed');
+        liberarEsquerdo();
+      }
+    });
+
+    // Reset
+    document.getElementById('btn-reset-virtual').addEventListener('click', () => {
+      if (vivo) { fome = 0; felicidade = 0; vivo = false; estadoAtual = TELA_GAMEOVER; }
+      else { reiniciarJogo(); }
+    });
+
+    // Speed slider
+    const speedSlider = document.getElementById('speed-slider');
+    const speedIndicator = document.getElementById('speed-indicator');
+    speedSlider.addEventListener('input', (e) => {
+      speedMultiplier = parseInt(e.target.value);
+      let d = `${speedMultiplier}x`;
+      if (speedMultiplier === 1) d += ' (Padrǜo)';
+      else if (speedMultiplier >= 10) d += ' (Ultra)';
+      else if (speedMultiplier >= 5) d += ' (Rǭpido)';
+      speedIndicator.textContent = d;
+      startTimer();
+    });
+
+    // =============================================
+    // GERAR PINOS
+    // =============================================
+    const pinLabelsLeft  = ['G','3V','3V','36','37','38','39','32','33','25','26','27'];
+    const pinLabelsRight = ['G','5V','5','17','22','21','19','18','5','15','2','4'];
+
+    function buildPins(containerId, labels, side) {
+      const container = document.getElementById(containerId);
+      labels.forEach(lbl => {
+        const hole = document.createElement('div');
+        hole.className = 'pin-hole';
+        const label = document.createElement('span');
+        label.className = 'pin-label';
+        label.textContent = lbl;
+        label.style[side === 'left' ? 'left' : 'right'] = '14px';
+        hole.appendChild(label);
+        container.appendChild(hole);
+      });
+    }
+
+    buildPins('pins-left', pinLabelsLeft, 'left');
+    buildPins('pins-right', pinLabelsRight, 'right');
+
+    // =============================================
+    // INICIALIZA�ǟO
+    // =============================================
+    requestAnimationFrame(render);
+    startTimer();
+  </script>
+</body>
+</html>
