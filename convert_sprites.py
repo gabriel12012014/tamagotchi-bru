@@ -23,18 +23,40 @@ def convert_png_to_c_array(png_path, name):
     c_vals = []
     js_vals = []
     
+    # First pass: check what colors are present
+    has_dark = False
+    has_light = False
+    for y in range(h):
+        for x in range(w):
+            r, g, b, a = pixels[x, y]
+            if a >= 128:
+                brightness = (r + g + b) / 3
+                if brightness < 128:
+                    has_dark = True
+                else:
+                    has_light = True
+
     for y in range(h):
         for x in range(w):
             r, g, b, a = pixels[x, y]
             if a < 128:
                 val = 0x0000 # Transparent
             else:
-                if r == 0 and g == 0 and b == 0:
-                    val = 0xFFFF # Map black to white so it's visible on dark background
-                else:
-                    val = rgb_to_rgb565(r, g, b)
-                    if val == 0x0000:
+                brightness = (r + g + b) / 3
+                if has_dark and has_light:
+                    # Image has both outlines and fill: Map light to white (visible), dark to opaque black
+                    if brightness >= 128:
                         val = 0xFFFF
+                    else:
+                        val = 0x0001
+                elif has_dark:
+                    # Image only has dark outlines: Map dark to white
+                    val = 0xFFFF
+                elif has_light:
+                    # Image only has light outlines: Map light to white
+                    val = 0xFFFF
+                else:
+                    val = 0x0000
             
             c_str = f"0x{val:04X}"
             c_vals.append(c_str)
@@ -65,20 +87,23 @@ def main():
     all_c = ""
     all_js = ""
     for f in png_files:
-        basename = os.path.basename(f).replace(".png", "")
+        basename = os.path.basename(f).replace(".png", "").replace("-", "_")
         print(f"Converting {f} ({basename})...")
         c, js = convert_png_to_c_array(f, basename)
         all_c += c
         all_js += js
         
+    c_content = "#ifndef SPRITES_H\n#define SPRITES_H\n\n#include <pgmspace.h>\n\n" + all_c + "#endif\n"
+    
     with open("sprites.h", "w") as f:
-        f.write("#ifndef SPRITES_H\n#define SPRITES_H\n\n")
-        f.write("#include <pgmspace.h>\n\n")
-        f.write(all_c)
-        f.write("#endif\n")
+        f.write(c_content)
         
     with open("sprites.js", "w") as f:
         f.write(all_js)
+        
+    if os.path.exists("arduino"):
+        with open("arduino/sprites.h", "w") as f:
+            f.write(c_content)
         
     print("Generated sprites.h and sprites.js successfully!")
 
