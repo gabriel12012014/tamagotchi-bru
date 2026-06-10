@@ -14,7 +14,7 @@ TFT_eSPI tft = TFT_eSPI();
 TFT_eSprite telaVirtual = TFT_eSprite(&tft); // Double Buffer
 Preferences preferences;
 
-#define BUZZER_PIN 26
+#define BUZZER_PIN 27
 
 // Pinos dos Botões
 const int BTN_ESQUERDO = 0;   // IO0  - Abre Menu / Navega opções
@@ -106,6 +106,10 @@ void tocarSomBeep() { tone(BUZZER_PIN, 1000, 50); }
 void tocarSomPulo() { tone(BUZZER_PIN, 600, 100); delay(100); tone(BUZZER_PIN, 800, 100); }
 void tocarSomSucesso() { tone(BUZZER_PIN, 1000, 100); delay(100); tone(BUZZER_PIN, 1200, 150); delay(150); tone(BUZZER_PIN, 1500, 300); }
 void tocarSomFalha() { tone(BUZZER_PIN, 300, 200); delay(200); tone(BUZZER_PIN, 200, 300); }
+void tocarSomComer() { tone(BUZZER_PIN, 800, 50); delay(100); tone(BUZZER_PIN, 900, 50); delay(100); tone(BUZZER_PIN, 1000, 50); }
+void tocarSomCarinho() { tone(BUZZER_PIN, 1200, 100); delay(150); tone(BUZZER_PIN, 1300, 200); }
+void tocarSomBanho() { tone(BUZZER_PIN, 500, 100); delay(100); tone(BUZZER_PIN, 600, 100); delay(100); tone(BUZZER_PIN, 500, 100); }
+void tocarSomRemedio() { tone(BUZZER_PIN, 1500, 100); delay(100); tone(BUZZER_PIN, 1200, 150); delay(150); tone(BUZZER_PIN, 1000, 200); }
 void pararSom() { noTone(BUZZER_PIN); }
 
 // ==========================================
@@ -563,10 +567,12 @@ void executarMenuAcao() {
       if (temCoco) {
         // Sujo: não pode comer, mostra interrogação
         comidaBloqueada = true;
+        tocarSomFalha();
       } else {
         // Limpo: toda comida dá +5 de fome
         comidaBloqueada = false;
         fome = min(100, fome + 5);
+        tocarSomComer();
       }
       estadoAtual = TELA_COMER;
       tempoInicioAnimacao = millis();
@@ -576,16 +582,19 @@ void executarMenuAcao() {
       if (felicidade > 100) felicidade = 100;
       estadoAtual = TELA_PULAR;
       tempoInicioAnimacao = millis();
+      tocarSomPulo();
       break;
     case 2:
       if (!taDoente && !temCoco) felicidade += 15;
       if (felicidade > 100) felicidade = 100;
       estadoAtual = TELA_CARINHO;
       tempoInicioAnimacao = millis();
+      tocarSomCarinho();
       break;
     case 3:
       estadoAtual = TELA_BANHO;
       tempoInicioAnimacao = millis();
+      tocarSomBanho();
       break;
     case 4:
       estadoAtual = TELA_REMEDIO;
@@ -593,8 +602,10 @@ void executarMenuAcao() {
       if (taDoente) {
         taDoente = false;
         curouDoenca = true;
+        tocarSomRemedio();
       } else {
         curouDoenca = false;
+        tocarSomFalha();
       }
       break;
     case 5:
@@ -626,6 +637,7 @@ void executarSubMenuComida() {
   
   estadoAtual = TELA_COMER;
   tempoInicioAnimacao = millis();
+  tocarSomComer();
 }
 
 void executarSubMenuBrincar() {
@@ -634,6 +646,7 @@ void executarSubMenuBrincar() {
     felicidade += 20;
     if (felicidade > 100) felicidade = 100;
     estadoAtual = TELA_PULAR;
+    tocarSomPulo();
   }
   tempoInicioAnimacao = millis();
 }
