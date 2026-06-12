@@ -411,6 +411,7 @@
       </div>
 
       <div style="display: flex; gap: 0.5rem; width: 100%; margin-top: 0.5rem;">
+        <button class="btn-debug" id="btn-trigger-hatch">🥚 Chocar Ovo</button>
         <button class="btn-debug" id="btn-trigger-poop">💩 +Cocô</button>
         <button class="btn-debug" id="btn-trigger-sick">🤢 +Doença</button>
       </div>
@@ -569,17 +570,25 @@
     function tocarSomPulo() { tocarSom(600, 100); setTimeout(() => tocarSom(800, 100), 100); }
     function tocarSomSucesso() { tocarSom(1000, 100); setTimeout(() => tocarSom(1200, 150), 100); setTimeout(() => tocarSom(1500, 300), 250); }
     function tocarSomFalha() { tocarSom(300, 200); setTimeout(() => tocarSom(200, 300), 200); }
+    function tocarSomComer() { tocarSom(800, 50); setTimeout(() => tocarSom(900, 50), 100); setTimeout(() => tocarSom(1000, 50), 200); }
+    function tocarSomCarinho() { tocarSom(1200, 100); setTimeout(() => tocarSom(1300, 200), 150); }
+    function tocarSomBanho() { tocarSom(500, 100); setTimeout(() => tocarSom(600, 100), 100); setTimeout(() => tocarSom(500, 100), 200); }
+    function tocarSomRemedio() { tocarSom(1500, 100); setTimeout(() => tocarSom(1200, 150), 100); setTimeout(() => tocarSom(1000, 200), 250); }
+    function tocarSomBoot() { tocarSom(440, 150); setTimeout(() => tocarSom(554, 150), 150); setTimeout(() => tocarSom(659, 200), 300); setTimeout(() => tocarSom(880, 400), 500); }
 
     // =============================================
     // ESTADO DO JOGO
     // =============================================
-    const TELA_PET = 0, TELA_MENU = 1, TELA_STATUS = 2, TELA_GAMEOVER = 3, TELA_COMER = 4, TELA_MSG_SUCESSO = 5, TELA_CARINHO = 6, TELA_SUBMENU_COMER = 7, TELA_SUBMENU_BRINCAR = 8, TELA_PULAR = 9, TELA_BANHO = 10, TELA_REMEDIO = 11, TELA_AJUSTE_HORA = 12, TELA_SUBMENU_OPCOES = 13, TELA_CONFIRM_RESET = 14;
-    let estadoAtual = TELA_PET;
+    const TELA_PET = 0, TELA_MENU = 1, TELA_STATUS = 2, TELA_GAMEOVER = 3, TELA_COMER = 4, TELA_MSG_SUCESSO = 5, TELA_CARINHO = 6, TELA_SUBMENU_COMER = 7, TELA_SUBMENU_BRINCAR = 8, TELA_PULAR = 9, TELA_BANHO = 10, TELA_REMEDIO = 11, TELA_AJUSTE_HORA = 12, TELA_SUBMENU_OPCOES = 13, TELA_CONFIRM_RESET = 14, TELA_BOOT = 15, TELA_DESLIGADO = -1;
+    let estadoAtual = TELA_DESLIGADO;
+    let tempoInicioBoot = 0;
+    const imgBootLogo = new Image();
+    imgBootLogo.src = 'Assets/logo-brunagotchi.png';
     
     const TICK_INTERVAL = 60000; // 60 segundos por turno
     
     // Status
-    let fome = 100, felicidade = 100, idade = 0, vivo = true, temCoco = false, taDoente = false, turnosSujo = 0;
+    let fome = 100, felicidade = 100, idade = 0, vivo = true, temCoco = false, taDoente = false, turnosSujo = 0, turnosZerado = 0;
     
     // Variáveis do Ajuste de Hora
     let ajusteHora = 12;
@@ -599,6 +608,7 @@
       temCoco = localStorage.getItem('pet_temCoco') === 'true';
       taDoente = localStorage.getItem('pet_taDoente') === 'true';
       turnosSujo = parseInt(localStorage.getItem('pet_turnosSujo')) || 0;
+      turnosZerado = parseInt(localStorage.getItem('pet_turnosZerado')) || 0;
       horaDefinida = false; // Emula cold boot físico no carregamento da página
       ajusteHora = parseInt(localStorage.getItem('pet_ajusteHora') || '12');
       ajusteMinuto = parseInt(localStorage.getItem('pet_ajusteMinuto') || '0');
@@ -627,6 +637,7 @@
       localStorage.setItem('pet_temCoco', temCoco);
       localStorage.setItem('pet_taDoente', taDoente);
       localStorage.setItem('pet_turnosSujo', turnosSujo);
+      localStorage.setItem('pet_turnosZerado', turnosZerado);
       localStorage.setItem('pet_horaDefinida', horaDefinida);
       localStorage.setItem('pet_ajusteHora', ajusteHora);
       localStorage.setItem('pet_ajusteMinuto', ajusteMinuto);
@@ -957,6 +968,36 @@
     }
 
     // =============================================
+    // TELAS DE BOOT / STANDBY
+    // =============================================
+    function desenharTelaDesligado() {
+      ctx.fillStyle = '#000000';
+      ctx.fillRect(0, 0, 135, 240);
+      ctx.imageSmoothingEnabled = false;
+      drawText('CLIQUE', 6.3, 20, '#ffffff', 2);
+      drawText('PARA', 8.7, 24, '#ffffff', 2);
+      drawText('LIGAR', 7.5, 28, '#ffffff', 2);
+    }
+
+    function desenharTelaBoot() {
+      ctx.fillStyle = '#000000';
+      ctx.fillRect(0, 0, 135, 240);
+      if (imgBootLogo.complete && imgBootLogo.naturalWidth > 0) {
+        ctx.imageSmoothingEnabled = true; // Permite renderizar a logo com qualidade (sem travar nos pixels virtuais 5x5)
+        let w = imgBootLogo.naturalWidth;
+        let h = imgBootLogo.naturalHeight;
+        // Ajusta a largura se for maior que a tela, mantendo a proporção
+        if (w > 125) {
+          h = h * (125 / w);
+          w = 125;
+        }
+        const x = (135 - w) / 2;
+        const y = (240 - h) / 2;
+        ctx.drawImage(imgBootLogo, x, y, w, h);
+      }
+    }
+
+    // =============================================
     // RENDER LOOP
     // =============================================
     function render() {
@@ -988,6 +1029,15 @@
         estadoAtual = TELA_PET;
       }
       
+      if (estadoAtual === TELA_BOOT && (now - tempoInicioBoot > 3000)) {
+        if (!horaDefinida) {
+          estadoAtual = TELA_AJUSTE_HORA;
+        } else {
+          estadoAtual = TELA_PET;
+          verificarPassagemTempo();
+        }
+      }
+      
       // Controle de Animações Automáticas
       if (estadoAtual === TELA_COMER || estadoAtual === TELA_CARINHO || estadoAtual === TELA_PULAR || estadoAtual === TELA_BANHO || estadoAtual === TELA_REMEDIO) {
         if (now - tempoInicioAnimacao > 1500) {
@@ -1017,6 +1067,8 @@
         case TELA_AJUSTE_HORA: desenharAjusteHora(); break;
         case TELA_SUBMENU_OPCOES: desenharSubMenuOpcoes(); break;
         case TELA_CONFIRM_RESET: desenharTelaConfirmReset(); break;
+        case TELA_BOOT:     desenharTelaBoot(); break;
+        case TELA_DESLIGADO: desenharTelaDesligado(); break;
       }
 
       // Atualiza painel lateral
@@ -1043,6 +1095,7 @@
         [TELA_PULAR]:    { text: '🏃 Pular', cls: 'screen-mode-badge status' },
         [TELA_BANHO]:    { text: '🧼 Banho', cls: 'screen-mode-badge status' },
         [TELA_AJUSTE_HORA]: { text: '🕒 Ajustar Hora', cls: 'screen-mode-badge status' },
+        [TELA_BOOT]:     { text: '🚀 Inicializando', cls: 'screen-mode-badge status' },
       };
       const b = badgeMap[estadoAtual] || { text: '❓ ' + estadoAtual, cls: 'screen-mode-badge status' };
       badge.textContent = b.text;
@@ -1091,12 +1144,20 @@
         temCoco = true;
       }
 
-      // Só morre após 1 hora (60 turnos/minutos)
+      // Agoniza por 2 horas após crescer se estiver zerado
       if (idade >= 60) {
         if (fome === 0 || felicidade === 0) {
-          vivo = false;
-          estadoAtual = TELA_GAMEOVER;
-          tocarSomFalha();
+          turnosZerado++;
+          if (turnosZerado % 15 === 0 && turnosZerado < 120) {
+            tocarSomBeep(); // Beepa a cada 15 min de agonia
+          }
+          if (turnosZerado >= 120) {
+            vivo = false;
+            estadoAtual = TELA_GAMEOVER;
+            tocarSomFalha();
+          }
+        } else {
+          turnosZerado = 0;
         }
       }
 
@@ -1151,31 +1212,34 @@
     }
 
     function desenharAjusteHora() {
+      ctx.imageSmoothingEnabled = false;
       fillRect(0, 0, 27, 48, '#000000');
 
       const hStr = String(ajusteHora).padStart(2, '0');
       const mStr = String(ajusteMinuto).padStart(2, '0');
 
       if (campoAjuste === 0) {
-        fillRect(2, 14, 10, 10, '#ffffff');
-        drawText(hStr, 3, 15, '#000000', 2);
-        drawText(mStr, 14, 15, '#ffffff', 2);
-        drawText(':', 10, 15, '#ffffff', 2);
+        fillRect(2, 14, 11, 9, '#ffffff');
+        drawText(hStr, 3, 15.6, '#000000', 4);
+        drawText(mStr, 15, 15.6, '#ffffff', 4);
+        drawText(':', 12.8, 17.2, '#ffffff', 2);
       } else if (campoAjuste === 1) {
-        drawText(hStr, 3, 15, '#ffffff', 2);
-        fillRect(13, 14, 11, 10, '#ffffff');
-        drawText(mStr, 14, 15, '#000000', 2);
-        drawText(':', 10, 15, '#ffffff', 2);
+        drawText(hStr, 3, 15.6, '#ffffff', 4);
+        fillRect(14, 14, 11, 9, '#ffffff');
+        drawText(mStr, 15, 15.6, '#000000', 4);
+        drawText(':', 12.8, 17.2, '#ffffff', 2);
       } else {
-        drawText(`${hStr}:${mStr}`, 3, 15, '#ffffff', 2);
+        drawText(hStr, 3, 15.6, '#ffffff', 4);
+        drawText(mStr, 15, 15.6, '#ffffff', 4);
+        drawText(':', 12.8, 17.2, '#ffffff', 2);
       }
 
       if (campoAjuste === 2) {
-        fillRect(7, 30, 13, 6, '#ffffff');
-        drawText('SALVAR', 11, 32, '#000000', 1);
+        fillRect(5, 29, 17, 9, '#ffffff');
+        drawText('SALVAR', 6.4, 32, '#000000', 2);
       } else {
-        drawRect(7, 30, 13, 6, '#ffffff');
-        drawText('SALVAR', 11, 32, '#ffffff', 1);
+        drawRect(5, 29, 17, 9, '#ffffff');
+        drawText('SALVAR', 6.4, 32, '#ffffff', 2);
       }
     }
 
@@ -1226,33 +1290,35 @@
       tocarSomBeep();
       switch (menuCursor) {
         case 0:
-          comidaSelecionada = Math.floor(Math.random() * 4);
           if (temCoco) {
-            // Sujo: não pode comer, mostra interrogação
             comidaBloqueada = true;
+            tocarSomFalha();
+            estadoAtual = TELA_COMER;
+            tempoInicioAnimacao = performance.now();
           } else {
-            // Limpo: toda comida dá +5 de fome
             comidaBloqueada = false;
-            fome = Math.min(100, fome + 5);
+            subMenuCursor = Math.floor(Math.random() * 4);
+            executarSubMenuComida();
           }
-          estadoAtual = TELA_COMER;
-          tempoInicioAnimacao = performance.now();
           break;
         case 1:
           if (!taDoente && !temCoco) felicidade += 20;
           if (felicidade > 100) felicidade = 100;
           estadoAtual = TELA_PULAR;
           tempoInicioAnimacao = performance.now();
+          tocarSomPulo();
           break;
         case 2:
           if (!taDoente && !temCoco) felicidade += 15;
           if (felicidade > 100) felicidade = 100;
           estadoAtual = TELA_CARINHO;
           tempoInicioAnimacao = performance.now();
+          tocarSomCarinho();
           break;
         case 3:
           estadoAtual = TELA_BANHO;
           tempoInicioAnimacao = performance.now();
+          tocarSomBanho();
           break;
         case 4:
           estadoAtual = TELA_REMEDIO;
@@ -1260,8 +1326,10 @@
           if (taDoente) {
             taDoente = false;
             curouDoenca = true;
+            tocarSomRemedio();
           } else {
             curouDoenca = false;
+            tocarSomFalha();
           }
           break;
         case 5:
@@ -1278,21 +1346,22 @@
       tocarSomBeep();
       comidaSelecionada = subMenuCursor;
       if (comidaSelecionada === 0) {
-        fome += 20; // Maca
+        fome += 40; // Maca
       } else if (comidaSelecionada === 1) {
-        fome += 25; // Pizza
-        felicidade += 5;
+        fome += 50; // Pizza
+        felicidade += 10;
       } else if (comidaSelecionada === 2) {
-        fome += 30; // Hamburguer
+        fome += 60; // Hamburguer
       } else {
-        fome += 10; // Cogumelo
-        felicidade += 15;
+        fome += 20; // Cogumelo
+        felicidade += 30;
       }
       fome = Math.min(100, fome);
       felicidade = Math.min(100, felicidade);
       
       estadoAtual = TELA_COMER;
       tempoInicioAnimacao = performance.now();
+      tocarSomComer();
     }
     
     function executarSubMenuBrincar() {
@@ -1301,6 +1370,7 @@
         felicidade += 20;
         if (felicidade > 100) felicidade = 100;
         estadoAtual = TELA_PULAR;
+        tocarSomPulo();
       }
       tempoInicioAnimacao = performance.now();
     }
@@ -1548,6 +1618,13 @@
     });
 
     // Debug Buttons
+    document.getElementById('btn-trigger-hatch').addEventListener('click', () => {
+      if (vivo && idade < 60) {
+        idade = 60;
+        salvarProgresso();
+      }
+    });
+
     document.getElementById('btn-trigger-poop').addEventListener('click', () => {
       if (vivo) {
         temCoco = true;
@@ -1601,13 +1678,20 @@
     // =============================================
     // INICIALIZAÇÃO
     // =============================================
-    if (!horaDefinida) {
-      estadoAtual = TELA_AJUSTE_HORA;
-    } else {
-      verificarPassagemTempo();
-    }
+    // Bloqueios de Autoplay de áudio no navegador exigem que o usuário interaja primeiro.
+    estadoAtual = TELA_DESLIGADO;
+    
+    document.body.addEventListener('click', () => {
+      if (estadoAtual === TELA_DESLIGADO) {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        estadoAtual = TELA_BOOT;
+        tempoInicioBoot = performance.now();
+        tocarSomBoot();
+        startTimer();
+      }
+    });
+
     requestAnimationFrame(render);
-    startTimer();
   </script>
 </body>
 </html>

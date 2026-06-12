@@ -30,6 +30,7 @@ bool taDoente = false;
 bool curouDoenca = false;
 bool comidaBloqueada = false;
 int turnosSujo = 0;
+int turnosZerado = 0;
 
 // Controles de Tempo
 unsigned long ultimoTurno = 0;
@@ -110,6 +111,7 @@ void tocarSomComer() { tone(BUZZER_PIN, 800, 50); delay(100); tone(BUZZER_PIN, 9
 void tocarSomCarinho() { tone(BUZZER_PIN, 1200, 100); delay(150); tone(BUZZER_PIN, 1300, 200); }
 void tocarSomBanho() { tone(BUZZER_PIN, 500, 100); delay(100); tone(BUZZER_PIN, 600, 100); delay(100); tone(BUZZER_PIN, 500, 100); }
 void tocarSomRemedio() { tone(BUZZER_PIN, 1500, 100); delay(100); tone(BUZZER_PIN, 1200, 150); delay(150); tone(BUZZER_PIN, 1000, 200); }
+void tocarSomBoot() { tone(BUZZER_PIN, 440, 150); delay(150); tone(BUZZER_PIN, 554, 150); delay(150); tone(BUZZER_PIN, 659, 200); delay(200); tone(BUZZER_PIN, 880, 400); }
 void pararSom() { noTone(BUZZER_PIN); }
 
 // ==========================================
@@ -198,6 +200,7 @@ void setup() {
   temCoco = preferences.getBool("temCoco", false);
   taDoente = preferences.getBool("taDoente", false);
   turnosSujo = preferences.getInt("turnosSujo", 0);
+  turnosZerado = preferences.getInt("tZerado", 0);
   esp_reset_reason_t r_reason = esp_reset_reason();
   if (r_reason == ESP_RST_POWERON || r_reason == ESP_RST_BROWNOUT || r_reason == ESP_RST_EXT) {
     horaDefinida = false;
@@ -225,6 +228,8 @@ void setup() {
   if (!horaDefinida) {
     estadoAtual = TELA_AJUSTE_HORA;
   }
+  
+  tocarSomBoot();
 }
 
 void loop() {
@@ -508,6 +513,7 @@ void loop() {
       preferences.putBool("temCoco", temCoco);
       preferences.putBool("taDoente", taDoente);
       preferences.putInt("turnosSujo", turnosSujo);
+      preferences.putInt("tZerado", turnosZerado);
     }
   }
 
@@ -527,6 +533,7 @@ void loop() {
       preferences.putInt("felicidade", felicidade);
       preferences.putBool("temCoco", temCoco);
       preferences.putInt("turnosSujo", turnosSujo);
+      preferences.putInt("tZerado", turnosZerado);
     }
   }
 
@@ -563,19 +570,16 @@ void executarMenuAcao() {
   tocarSomBeep();
   switch (menuCursor) {
     case 0:
-      comidaSelecionada = random(0, 4);
       if (temCoco) {
-        // Sujo: não pode comer, mostra interrogação
         comidaBloqueada = true;
         tocarSomFalha();
+        estadoAtual = TELA_COMER;
+        tempoInicioAnimacao = millis();
       } else {
-        // Limpo: toda comida dá +5 de fome
         comidaBloqueada = false;
-        fome = min(100, fome + 5);
-        tocarSomComer();
+        subMenuCursor = random(0, 4);
+        executarSubMenuComida();
       }
-      estadoAtual = TELA_COMER;
-      tempoInicioAnimacao = millis();
       break;
     case 1:
       if (!taDoente && !temCoco) felicidade += 20;
@@ -622,15 +626,15 @@ void executarSubMenuComida() {
   tocarSomBeep();
   comidaSelecionada = subMenuCursor;
   if (comidaSelecionada == 0) {
-    fome += 20; // Maca
+    fome += 40; // Maca
   } else if (comidaSelecionada == 1) {
-    fome += 25; // Pizza
-    felicidade += 5;
+    fome += 50; // Pizza
+    felicidade += 10;
   } else if (comidaSelecionada == 2) {
-    fome += 30; // Hamburguer
+    fome += 60; // Hamburguer
   } else {
-    fome += 10; // Cogumelo
-    felicidade += 15;
+    fome += 20; // Cogumelo
+    felicidade += 30;
   }
   if (fome > 100) fome = 100;
   if (felicidade > 100) felicidade = 100;
@@ -1171,14 +1175,22 @@ void processarTickStatus() {
     temCoco = true;
   }
 
-  // Só morre após 1 hora (60 turnos/minutos)
+  // Agoniza por 2 horas após crescer se estiver zerado
   if (idade >= 60) {
     if (fome <= 0 || felicidade <= 0) {
-      fome = 0;
-      felicidade = 0;
-      vivo = false;
-      estadoAtual = TELA_GAMEOVER;
-      tocarSomFalha();
+      turnosZerado++;
+      if (turnosZerado % 15 == 0 && turnosZerado < 120) {
+        tocarSomBeep(); // Beepa a cada 15 min de agonia
+      }
+      if (turnosZerado >= 120) {
+        fome = 0;
+        felicidade = 0;
+        vivo = false;
+        estadoAtual = TELA_GAMEOVER;
+        tocarSomFalha();
+      }
+    } else {
+      turnosZerado = 0;
     }
   }
 }
