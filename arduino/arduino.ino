@@ -218,6 +218,12 @@ void setup() {
   // Cria a Tela Virtual na RAM (135x240)
   telaVirtual.createSprite(135, 240);
 
+  // Limpa ruídos da tela e mostra logo durante o boot
+  tft.fillScreen(TFT_BLACK);
+  telaVirtual.fillScreen(TFT_BLACK);
+  desenharSpriteEscalado(logo_brunagotchi_sprite, logo_brunagotchi_width, logo_brunagotchi_height, (135 - logo_brunagotchi_width) / 2, (240 - logo_brunagotchi_height) / 2, 1);
+  telaVirtual.pushSprite(0, 0);
+
   // Mantém o Wi-Fi ligado e impede o sleep do modem para aumentar o consumo (~120mA)
   // Isso evita que o powerbank desligue por baixo consumo enquanto o pet está acordado
   WiFi.mode(WIFI_STA);
@@ -230,6 +236,7 @@ void setup() {
   }
   
   tocarSomBoot();
+  delay(1500); // Mantém a logo visível por mais tempo
 }
 
 void loop() {
@@ -1272,4 +1279,12 @@ void reiniciarJogo() {
   preferences.putBool("temCoco", temCoco);
   preferences.putBool("taDoente", taDoente);
   preferences.putInt("turnosSujo", turnosSujo);
+
+  // Mostra a logo de boot e dá uma pausa no reset
+  tft.fillScreen(TFT_BLACK);
+  telaVirtual.fillScreen(TFT_BLACK);
+  desenharSpriteEscalado(logo_brunagotchi_sprite, logo_brunagotchi_width, logo_brunagotchi_height, (135 - logo_brunagotchi_width) / 2, (240 - logo_brunagotchi_height) / 2, 1);
+  telaVirtual.pushSprite(0, 0);
+  tocarSomBoot();
+  delay(1500); // 1.5s extras (somando com o som, fica ~3s na tela)
 }
