@@ -359,6 +359,7 @@ void loop() {
         } else {
           estadoAtual = TELA_MENU;
           menuCursor = 0;
+          tocarSomBeep();
         }
         break;
       case TELA_MENU:
