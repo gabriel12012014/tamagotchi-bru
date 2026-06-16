@@ -1158,39 +1158,39 @@ void processarTickStatus() {
 
   if (idade < 60) {
     // Fase de Ovo (Bebê): Decaimento rápido mas imortal
-    if (idade % 5 == 0) fome = max(0, fome - 25);
-    if (idade % 3 == 0) felicidade = max(0, felicidade - 25);
+    if (idade % 10 == 0) fome = max(0, fome - 10);
+    if (idade % 10 == 0) felicidade = max(0, felicidade - 10);
   } else {
     // Fase Capivara (Normal)
     if (!taDoente) {
       if (!temCoco) {
-        if (idade % 4 == 0) fome = max(0, fome - 1);
-        if (idade % 3 == 0) felicidade = max(0, felicidade - 1);
+        if (idade % 30 == 0) fome = max(0, fome - 1);
+        if (idade % 20 == 0) felicidade = max(0, felicidade - 1);
       } else {
-        if (idade % 4 == 0) fome = max(0, fome - 1);
-        felicidade = max(0, felicidade - 1); // -1 por minuto quando sujo
+        if (idade % 30 == 0) fome = max(0, fome - 1);
+        if (idade % 5 == 0) felicidade = max(0, felicidade - 1); // -1 a cada 5 min quando sujo
       }
     } else {
-      if (idade % 2 == 0) fome = max(0, fome - 1);
-      felicidade = max(0, felicidade - 1); // -1 por minuto quando doente
+      if (idade % 15 == 0) fome = max(0, fome - 1);
+      if (idade % 5 == 0) felicidade = max(0, felicidade - 1); // -1 a cada 5 min quando doente
     }
   }
   
   idade++;
 
-  int cocoChance = (idade < 60) ? 20 : 480;
+  int cocoChance = (idade < 60) ? 60 : 720;
   if (!temCoco && random(cocoChance) == 0) {
     temCoco = true;
   }
 
-  // Agoniza por 2 horas após crescer se estiver zerado
+  // Agoniza por 12 horas após crescer se estiver zerado
   if (idade >= 60) {
     if (fome <= 0 || felicidade <= 0) {
       turnosZerado++;
-      if (turnosZerado % 15 == 0 && turnosZerado < 120) {
-        tocarSomBeep(); // Beepa a cada 15 min de agonia
+      if (turnosZerado % 60 == 0 && turnosZerado < 720) {
+        tocarSomBeep(); // Beepa a cada 60 min de agonia
       }
-      if (turnosZerado >= 120) {
+      if (turnosZerado >= 720) {
         fome = 0;
         felicidade = 0;
         vivo = false;
