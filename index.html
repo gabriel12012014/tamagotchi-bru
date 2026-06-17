@@ -15,6 +15,7 @@
       --border-color: rgba(255, 255, 255, 0.08);
       --accent-color: #3b82f6;
       --accent-glow: rgba(59, 130, 246, 0.35);
+      --accent-glow-light: rgba(59, 130, 246, 0.15);
       --text-main: #f8fafc;
       --text-muted: #94a3b8;
       --scale: 1;
@@ -109,6 +110,19 @@
       filter: contrast(1.1) brightness(1.2) sepia(0.2) hue-rotate(-10deg) saturate(1.2);
       transform: scale(0.95) perspective(1000px) rotateX(1.5deg);
       border-radius: 40px;
+    }
+
+    #screen-color-overlay {
+      position: absolute;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      object-fit: contain;
+      pointer-events: none;
+      z-index: 10;
+      mix-blend-mode: multiply;
+      transform: scale(0.95) perspective(1000px) rotateX(1.5deg);
+      border-radius: 40px;
+      background-color: transparent;
+      transition: background-color 0.3s ease;
     }
 
     .board-bottom {
@@ -224,7 +238,7 @@
     }
     .config-title span.val {
       font-family: 'JetBrains Mono', monospace; color: var(--accent-color);
-      background: rgba(59,130,246,0.15); padding: 2px 6px;
+      background: var(--accent-glow-light); padding: 2px 6px;
       border-radius: 4px; font-size: 0.8rem;
     }
     .speed-slider {
@@ -306,10 +320,110 @@
       margin-top: 3rem; font-size: 0.75rem; color: var(--text-muted);
       text-align: center; padding-bottom: 2rem;
     }
+
+    /* === ESTILOS DO MENU DE CORES === */
+    .color-menu-overlay {
+      position: fixed;
+      top: 0;
+      left: 50%;
+      transform: translate(-50%, -100%);
+      width: 100%;
+      max-width: 420px;
+      background: rgba(15, 23, 42, 0.95);
+      border-bottom: 3px solid var(--accent-color);
+      border-bottom-left-radius: 20px;
+      border-bottom-right-radius: 20px;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8);
+      z-index: 10000;
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      backdrop-filter: blur(12px);
+      padding: 1.25rem 1.5rem;
+      color: #f8fafc;
+    }
+    .color-menu-overlay.open {
+      transform: translate(-50%, 0);
+    }
+    .color-menu-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+    .color-menu-header h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #f8fafc;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .color-menu-close {
+      font-size: 1.8rem;
+      cursor: pointer;
+      color: #94a3b8;
+      transition: color 0.2s;
+      padding: 0 5px;
+      line-height: 1;
+    }
+    .color-menu-close:hover {
+      color: #ef4444;
+    }
+    .color-menu-desc {
+      font-size: 0.8rem;
+      color: #94a3b8;
+      margin-bottom: 1rem;
+      line-height: 1.4;
+    }
+    .color-presets {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: space-between;
+      margin-bottom: 1.25rem;
+    }
+    .color-dot {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+    }
+    .color-dot:hover, .color-dot.active {
+      transform: scale(1.15);
+      border-color: #ffffff;
+      box-shadow: 0 0 12px var(--accent-glow);
+    }
+
+    .swipe-hint {
+      font-size: 0.75rem;
+      color: #64748b;
+      text-align: center;
+      margin-top: 0.5rem;
+      font-style: italic;
+    }
   </style>
 </head>
 <body>
   <div class="static-overlay"></div>
+
+  <!-- === MENU DE SELEÇÃO DE CORES === -->
+  <div id="color-menu" class="color-menu-overlay">
+    <div class="color-menu-header">
+      <h3>Cor do Jogo</h3>
+      <span class="color-menu-close" id="btn-close-colors">&times;</span>
+    </div>
+    <p class="color-menu-desc">Arraste para cima ou clique no X para fechar. Escolha uma cor:</p>
+    <div class="color-presets">
+      <button class="color-dot" data-color="#ffffff" style="background: #ffffff;" title="Branco"></button>
+      <button class="color-dot" data-color="#22c55e" style="background: #22c55e;" title="Verde Matrix"></button>
+      <button class="color-dot" data-color="#3b82f6" style="background: #3b82f6;" title="Azul Tech"></button>
+      <button class="color-dot" data-color="#ef4444" style="background: #ef4444;" title="Vermelho Alerta"></button>
+      <button class="color-dot" data-color="#eab308" style="background: #eab308;" title="Amarelo Retrô"></button>
+      <button class="color-dot" data-color="#a855f7" style="background: #a855f7;" title="Roxo Cyber"></button>
+    </div>
+
+    <p class="swipe-hint">Arraste para cima para fechar</p>
+  </div>
 
   <header style="display: none;"></header>
 
@@ -324,6 +438,7 @@
         <div class="screen-housing">
           <div class="real-screen">
             <canvas id="tft-canvas" width="135" height="240"></canvas>
+            <div id="screen-color-overlay"></div>
           </div>
           <div class="ribbon-cable"></div>
         </div>
@@ -533,8 +648,46 @@
     function drawRect(x,y,w,h,color) { ctx.strokeStyle=color; ctx.lineWidth=1; ctx.strokeRect(x*5,y*5,w*5,h*5); }
     function drawHLine(x,y,w,color) { fillRect(x,y,w,1,color); }
     function mapVal(x,a,b,c,d) { return Math.round((x-a)*(d-c)/(b-a)+c); }
+ 
+    function hexToRgbA(hex, alpha) {
+      let c;
+      if(/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)){
+        c= hex.substring(1).split('');
+        if(c.length== 3){
+          c= [c[0], c[0], c[1], c[1], c[2], c[2]];
+        }
+        c= '0x' + c.join('');
+        return 'rgba('+[(c>>16)&255, (c>>8)&255, c&255].join(',')+','+alpha+')';
+      }
+      return hex;
+    }
+ 
+    function aplicarCorTema(cor) {
+      corTema = cor;
+      localStorage.setItem('pet_corTema', cor);
+      
+      // Atualiza variáveis CSS
+      document.documentElement.style.setProperty('--accent-color', cor);
+      document.documentElement.style.setProperty('--accent-glow', hexToRgbA(cor, 0.35));
+      document.documentElement.style.setProperty('--accent-glow-light', hexToRgbA(cor, 0.15));
+      
+      // Atualiza o overlay de cor da tela
+      const overlay = document.getElementById('screen-color-overlay');
+      if (overlay) {
+        overlay.style.backgroundColor = (cor.toLowerCase() === '#ffffff') ? 'transparent' : cor;
+      }
+      
 
-
+      
+      // Marca o preset ativo
+      document.querySelectorAll('.color-dot').forEach(dot => {
+        if (dot.getAttribute('data-color').toLowerCase() === cor.toLowerCase()) {
+          dot.classList.add('active');
+        } else {
+          dot.classList.remove('active');
+        }
+      });
+    }
 
     // =============================================
     // AUDIO API (Sons)
@@ -584,6 +737,7 @@
     let horaDefinida = true;
     let timeOffset = 0;
     let ultimoTurnoTime = 0;
+    let corTema = localStorage.getItem('pet_corTema') || '#ffffff';
     
     // Carregar progresso salvo
     const salvoFome = localStorage.getItem('pet_fome');
@@ -1106,8 +1260,8 @@
 
       if (idade < 60) {
         // Fase de Ovo (Bebê): Decaimento rápido mas imortal
-        if (idade % 10 === 0) fome = Math.max(0, fome - 10);
-        if (idade % 10 === 0) felicidade = Math.max(0, felicidade - 10);
+        if (idade % 3 === 0) fome = Math.max(0, fome - 10);
+        if (idade % 3 === 0) felicidade = Math.max(0, felicidade - 10);
       } else {
         // Fase Capivara (Normal)
         if (!taDoente) {
@@ -1576,7 +1730,9 @@
     }
 
     window.addEventListener('mousedown', (e) => {
-      if (e.target.closest('#toggle-dev') || e.target.closest('.controls-panel')) return;
+      if (e.target.closest('#toggle-dev') || e.target.closest('.controls-panel') || e.target.closest('#color-menu')) return;
+      const menu = document.getElementById('color-menu');
+      if (menu && menu.classList.contains('open')) return;
       if (e.clientX < window.innerWidth / 2) {
         iniciarHoldEsquerdo();
       } else {
@@ -1587,7 +1743,9 @@
       liberarEsquerdo();
     });
     window.addEventListener('touchstart', (e) => {
-      if (e.target.closest('#toggle-dev') || e.target.closest('.controls-panel')) return;
+      if (e.target.closest('#toggle-dev') || e.target.closest('.controls-panel') || e.target.closest('#color-menu')) return;
+      const menu = document.getElementById('color-menu');
+      if (menu && menu.classList.contains('open')) return;
       if (e.touches[0].clientX < window.innerWidth / 2) {
         e.preventDefault();
         iniciarHoldEsquerdo();
@@ -1604,6 +1762,8 @@
     });
 
     window.addEventListener('keydown', (e) => {
+      const menu = document.getElementById('color-menu');
+      if (menu && menu.classList.contains('open')) return;
       if (e.repeat) return;
       if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
         iniciarHoldEsquerdo();
@@ -1614,6 +1774,8 @@
     });
 
     window.addEventListener('keyup', (e) => {
+      const menu = document.getElementById('color-menu');
+      if (menu && menu.classList.contains('open')) return;
       if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
         liberarEsquerdo();
       }
@@ -1704,6 +1866,110 @@
     };
     toggleDev.addEventListener('click', toggleDevHandler);
     toggleDev.addEventListener('touchstart', toggleDevHandler, { passive: false });
+
+    // Recalcula o tempo offline quando a aba volta a ficar visível ou ganha foco (comum em celulares)
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
+        verificarPassagemTempo();
+      }
+    });
+    window.addEventListener('focus', () => {
+      verificarPassagemTempo();
+    });
+
+    // === EVENTOS DO MENU DE CORES ===
+    const colorMenu = document.getElementById('color-menu');
+    const closeBtn = document.getElementById('btn-close-colors');
+
+    // Fechar ao clicar no botão de fechar (X)
+    const handleCloseColors = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      colorMenu.classList.remove('open');
+      tocarSomBeep();
+    };
+    closeBtn.addEventListener('click', handleCloseColors);
+    closeBtn.addEventListener('touchstart', handleCloseColors, { passive: false });
+
+    // Fechar quando clicar fora do conteúdo do menu
+    document.addEventListener('click', (e) => {
+      if (colorMenu.classList.contains('open') && !colorMenu.contains(e.target) && e.target.id !== 'color-menu') {
+        colorMenu.classList.remove('open');
+      }
+    });
+
+    // Botões de cores pré-definidas (Presets)
+    document.querySelectorAll('.color-dot').forEach(dot => {
+      const handleSelectColor = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const selectedColor = dot.getAttribute('data-color');
+        aplicarCorTema(selectedColor);
+        tocarSomSucesso();
+      };
+      dot.addEventListener('click', handleSelectColor);
+      dot.addEventListener('touchstart', handleSelectColor, { passive: false });
+    });
+
+    // Aplica a cor inicial salva
+    aplicarCorTema(corTema);
+
+    // === DETECÇÃO DE GESTOS (Arrastar para cima/baixo) ===
+    let startY = 0;
+    let startX = 0;
+    let isDragging = false;
+
+    document.addEventListener('touchstart', (e) => {
+      if (colorMenu.contains(e.target) && e.target.id !== 'color-menu') return;
+      startY = e.touches[0].clientY;
+      startX = e.touches[0].clientX;
+      isDragging = true;
+    }, { passive: true });
+
+    document.addEventListener('touchend', (e) => {
+      if (!isDragging) return;
+      isDragging = false;
+      const endY = e.changedTouches[0].clientY;
+      const endX = e.changedTouches[0].clientX;
+      const diffY = endY - startY;
+      const diffX = endX - startX;
+
+      const isOpen = colorMenu.classList.contains('open');
+
+      if (!isOpen && diffY > 80 && Math.abs(diffX) < 60) {
+        colorMenu.classList.add('open');
+        tocarSomBeep();
+      } else if (isOpen && diffY < -60 && Math.abs(diffX) < 60) {
+        colorMenu.classList.remove('open');
+        tocarSomBeep();
+      }
+    }, { passive: true });
+
+    document.addEventListener('mousedown', (e) => {
+      if (colorMenu.contains(e.target)) return;
+      startY = e.clientY;
+      startX = e.clientX;
+      isDragging = true;
+    });
+
+    document.addEventListener('mouseup', (e) => {
+      if (!isDragging) return;
+      isDragging = false;
+      const endY = e.clientY;
+      const endX = e.clientX;
+      const diffY = endY - startY;
+      const diffX = endX - startX;
+
+      const isOpen = colorMenu.classList.contains('open');
+
+      if (!isOpen && diffY > 80 && Math.abs(diffX) < 60) {
+        colorMenu.classList.add('open');
+        tocarSomBeep();
+      } else if (isOpen && diffY < -60 && Math.abs(diffX) < 60) {
+        colorMenu.classList.remove('open');
+        tocarSomBeep();
+      }
+    });
 
     requestAnimationFrame(render);
   </script>
