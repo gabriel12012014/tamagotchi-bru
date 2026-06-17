@@ -1157,6 +1157,7 @@
       if (ultimoTurnoTime === 0) {
         ultimoTurnoTime = agoraSec;
         localStorage.setItem('pet_ultimoTurnoTime', ultimoTurnoTime);
+        salvarProgresso();
         return;
       }
 
