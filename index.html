@@ -17,120 +17,99 @@
       --accent-glow: rgba(59, 130, 246, 0.35);
       --text-main: #f8fafc;
       --text-muted: #94a3b8;
+      --scale: 1;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; touch-action: manipulation; }
 
     body {
-      background-color: #deede0;
-      color: #111812;
+      background-color: #000;
+      color: #fff;
       font-family: 'Inter', sans-serif;
-      min-height: 100vh;
+      width: 100vw;
+      height: 100vh;
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
-      overflow-x: hidden;
-      background-image: url('Assets/site/bg.png?v=2');
-      background-repeat: repeat;
+      overflow: hidden;
     }
 
-    header { text-align: center; margin-bottom: 2rem; padding-top: 1rem; }
-    header h1 {
-      font-size: 1.8rem; font-weight: 800; letter-spacing: -0.025em;
-      color: #111812;
-      margin-bottom: 0.25rem;
-    }
-    header p { font-size: 0.9rem; color: var(--text-muted); }
+    header { display: none; }
 
     .main-container {
-      display: flex; flex-direction: row; gap: 3rem;
+      display: flex; width: 100vw; height: 100vh;
       align-items: center; justify-content: center;
-      max-width: 1200px; width: 100%; padding: 0 2rem;
+      padding: 0; margin: 0;
     }
-    @media (max-width: 850px) { .main-container { flex-direction: column; gap: 2rem; } }
 
     /* === MOCKUP LILYGO TTGO T-DISPLAY === */
-    .board-wrapper { position: relative; flex-shrink: 0; }
+    .board-wrapper { width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center; }
 
     .ttgo-board {
-      width: 320px; height: 600px;
-      background: #1a1a1a;
-      border-radius: 20px;
-      position: relative;
-      box-shadow: 
-        0 25px 50px -12px rgba(0, 0, 0, 0.8),
-        inset 0 2px 4px rgba(255,255,255,0.1),
-        inset 0 -2px 4px rgba(0,0,0,0.5),
-        0 0 0 1px #333;
-      display: flex; flex-direction: column; align-items: center;
-      padding-top: 40px;
-      z-index: 10;
-      transition: transform 0.3s ease;
-    }
-    .ttgo-board:hover { transform: translateY(-3px); }
-
-    .pins-col {
-      position: absolute; top: 16px; bottom: 16px; width: 18px;
-      display: flex; flex-direction: column; justify-content: space-between;
-      align-items: center; padding: 6px 0;
-    }
-    .pins-col.left { left: 4px; }
-    .pins-col.right { right: 4px; }
-
-    .pin-hole {
-      width: 10px; height: 10px; border-radius: 50%;
-      background: radial-gradient(circle at 40% 35%, #555, #222 60%, #000 100%);
-      box-shadow: inset 0 0 2px rgba(0,0,0,0.7), 0 0 3px rgba(201,168,39,0.25);
-      position: relative;
-    }
-    .pin-hole::after {
-      content: ''; position: absolute; top: 50%; left: 50%;
-      transform: translate(-50%,-50%); width: 3px; height: 3px;
-      border-radius: 50%; background: #c9a827;
-      box-shadow: inset 0 0 1px rgba(0,0,0,0.9);
+      width: 100vw; height: 100vh;
+      background: transparent;
+      display: flex; align-items: center; justify-content: center;
     }
 
-    .pin-label {
-      position: absolute; font-family: 'JetBrains Mono', monospace;
-      font-size: 6px; color: rgba(255,255,255,0.3); pointer-events: none;
-    }
-    .pins-col.left .pin-label { left: 14px; }
-    .pins-col.right .pin-label { right: 14px; }
-
-    .lilygo-logo {
-      position: absolute; top: 10px; left: 28px;
-      font-family: 'Inter', sans-serif; font-size: 9px; font-weight: 800;
-      color: rgba(255,255,255,0.5); letter-spacing: 0.5px;
-    }
-    .lilygo-logo sup { font-size: 5px; vertical-align: super; }
+    .pins-col, .pin-hole, .pin-label, .lilygo-logo, .ribbon-cable { display: none; }
 
     .screen-housing {
-      width: 168px; height: 296px; background: #000;
-      border: 4px solid #333; border-radius: 8px;
+      width: 100vw; height: 100vh;
       display: flex; align-items: center; justify-content: center;
-      margin-top: 28px; box-shadow: inset 0 2px 10px rgba(0,0,0,0.9);
-      position: relative;
-    }
-
-    .ribbon-cable {
-      position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%);
-      width: 40px; height: 5px;
-      background: linear-gradient(180deg, #444, #222);
-      border-radius: 0 0 2px 2px; box-shadow: 0 1px 2px rgba(0,0,0,0.4);
     }
 
     .real-screen {
-      width: 135px; height: 240px; background: #000;
-      border-radius: 2px; position: relative; overflow: hidden;
-    }
-    .real-screen::after {
-      content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-      background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0) 50%);
-      pointer-events: none; z-index: 10;
+      width: 100vw; height: 100vh; background: #000;
+      display: flex; align-items: center; justify-content: center;
+      position: relative; overflow: hidden;
     }
 
-    #tft-canvas { width: 135px; height: 240px; image-rendering: pixelated; display: block; }
+    .real-screen::after {
+      content: ''; position: absolute; top: 0; left: 0; width: 100vw; height: 100vh;
+      background: 
+        linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
+        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06)),
+        /* CRT Bezel shadow to curve the corners (Vignette) */
+        radial-gradient(circle at center, transparent 55%, rgba(0,0,0,0.85) 85%, rgba(0,0,0,1) 100%),
+        /* Glass Glare to give 3D spherical volume */
+        radial-gradient(ellipse at 30% 20%, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0) 40%);
+      background-size: 100% 4px, 3px 100%, 100% 100%, 100% 100%;
+      pointer-events: none; z-index: 50;
+      box-shadow: inset 0 0 10vh rgba(0,0,0,1);
+      opacity: 0.9;
+      animation: crt-flicker 0.15s infinite;
+      border-radius: 6% / 10%;
+    }
+
+    @keyframes crt-flicker {
+      0% { opacity: 0.75; }
+      50% { opacity: 0.82; }
+      100% { opacity: 0.75; }
+    }
+
+    .static-overlay {
+      position: fixed; top: -50%; left: -50%; width: 200%; height: 200%;
+      pointer-events: none; z-index: 45; opacity: 0.15;
+      background-image: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="n"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" stitchTiles="stitch"/%3E%3CfeColorMatrix type="saturate" values="0" /%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23n)"/%3E%3C/svg%3E');
+      animation: static-anim 0.3s steps(3) infinite;
+      mix-blend-mode: screen;
+      mask-image: radial-gradient(ellipse at center, black 55%, transparent 85%);
+      -webkit-mask-image: radial-gradient(ellipse at center, black 55%, transparent 85%);
+    }
+    
+    @keyframes static-anim {
+      0% { transform: translate(0, 0); }
+      33% { transform: translate(-5%, -10%); }
+      66% { transform: translate(5%, 5%); }
+      100% { transform: translate(-10%, 15%); }
+    }
+
+    #tft-canvas { 
+      width: 100vw; height: 100vh; object-fit: contain; image-rendering: pixelated; display: block; 
+      filter: contrast(1.1) brightness(1.2) sepia(0.2) hue-rotate(-10deg) saturate(1.2);
+      transform: scale(0.95) perspective(1000px) rotateX(1.5deg);
+      border-radius: 40px;
+    }
 
     .board-bottom {
       width: 100%; flex: 1; position: relative;
@@ -151,26 +130,35 @@
     }
     .pcb-model { bottom: 72px; left: 50%; transform: translateX(-50%); white-space: nowrap; }
 
-    .hw-buttons {
-      display: flex; gap: 70px; margin-bottom: 15px;
-      position: relative; z-index: 5;
-    }
+    .hw-buttons { display: none; }
     .hw-btn-wrap { display: flex; flex-direction: column; align-items: center; gap: 3px; }
 
     .hw-btn {
-      position: absolute; width: 24px; height: 16px;
-      background: linear-gradient(180deg, #d4d4d4 0%, #a3a3a3 100%);
-      border-radius: 4px; cursor: pointer;
+      position: relative; width: 64px; height: 64px;
+      background: linear-gradient(135deg, #4e8769 0%, #36604a 100%);
+      border-radius: 50%; cursor: pointer;
       box-shadow: 
-        0 4px 6px rgba(0,0,0,0.5),
-        inset 0 2px 2px rgba(255,255,255,0.5),
-        inset 0 -2px 2px rgba(0,0,0,0.2);
-      transition: all 0.1s;
+        inset 0 4px 6px rgba(255, 255, 255, 0.4),
+        inset 0 -4px 6px rgba(0, 0, 0, 0.2);
+      transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+      border: none;
+    }
+    #btn-dir {
+      background: linear-gradient(135deg, #379fbb 0%, #24758b 100%);
+      box-shadow: 
+        inset 0 4px 6px rgba(255, 255, 255, 0.4),
+        inset 0 -4px 6px rgba(0, 0, 0, 0.2);
     }
     .hw-btn:active, .hw-btn.pressed {
-      transform: translateY(1px);
-      box-shadow: 0 0 1px rgba(0,0,0,0.6), inset 0 1px 2px rgba(0,0,0,0.5);
-      background: linear-gradient(180deg, #b0b0b0, #808080);
+      transform: scale(0.9) translateY(4px);
+      box-shadow: 
+        inset 0 6px 12px rgba(0, 0, 0, 0.4),
+        inset 0 -2px 4px rgba(255, 255, 255, 0.2);
+    }
+    #btn-dir:active, #btn-dir.pressed {
+      box-shadow: 
+        inset 0 6px 12px rgba(0, 0, 0, 0.4),
+        inset 0 -2px 4px rgba(255, 255, 255, 0.2);
     }
     .hw-btn-label {
       font-family: 'JetBrains Mono', monospace; font-size: 5.5px;
@@ -190,12 +178,18 @@
       background: #ffffff; border-radius: 1px;
     }
 
+    .lilygo-logo, .pins-col, .ribbon-cable, .smd-components, .pcb-text, .usb-c, .hw-btn-label { display: none !important; }
+
     /* === PAINEL LATERAL === */
     .controls-panel {
+      position: fixed; top: 10px; right: 10px; z-index: 9999;
       background: var(--card-bg); border: 1px solid var(--border-color);
-      border-radius: 16px; padding: 1.5rem; width: 380px;
+      border-radius: 16px; padding: 1.5rem; width: 380px; max-height: 90vh; overflow-y: auto;
       backdrop-filter: blur(16px); box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-      display: flex; flex-direction: column; gap: 1.5rem;
+      display: none; flex-direction: column; gap: 1.5rem;
+    }
+    .controls-panel.dev-mode-active {
+      display: flex;
     }
     .panel-header { border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; }
     .panel-header h2 { font-size: 1.2rem; font-weight: 600; }
@@ -315,11 +309,9 @@
   </style>
 </head>
 <body>
+  <div class="static-overlay"></div>
 
-  <header>
-    <h1>LilyGO TTGO T-Display ESP32</h1>
-    <p>Simulador Interativo de Tamagotchi em C++ (Web Preview)</p>
-  </header>
+  <header style="display: none;"></header>
 
   <div class="main-container">
     <!-- === MOCKUP DA PLACA === -->
@@ -415,8 +407,8 @@
     </div>
   </div>
 
-  <footer class="credits">
-    Simulação local do código C++ para Arduino &bull; LilyGO TTGO T-Display ESP32
+  <footer class="credits" style="display: none;">
+    <span id="toggle-dev" style="cursor: pointer; opacity: 0.8; text-decoration: underline; background: rgba(0,0,0,0.5); padding: 5px; border-radius: 5px;">Modo Desenvolvedor</span>
   </footer>
 
   <script>
@@ -589,7 +581,7 @@
     let ajusteHora = 12;
     let ajusteMinuto = 0;
     let campoAjuste = 0;
-    let horaDefinida = false;
+    let horaDefinida = true;
     let timeOffset = 0;
     let ultimoTurnoTime = 0;
     
@@ -604,10 +596,10 @@
       taDoente = localStorage.getItem('pet_taDoente') === 'true';
       turnosSujo = parseInt(localStorage.getItem('pet_turnosSujo')) || 0;
       turnosZerado = parseInt(localStorage.getItem('pet_turnosZerado')) || 0;
-      horaDefinida = false; // Emula cold boot físico no carregamento da página
+      horaDefinida = true; // Auto time
       ajusteHora = parseInt(localStorage.getItem('pet_ajusteHora') || '12');
       ajusteMinuto = parseInt(localStorage.getItem('pet_ajusteMinuto') || '0');
-      timeOffset = parseInt(localStorage.getItem('pet_timeOffset') || '0');
+      timeOffset = 0; // Force device time
       ultimoTurnoTime = parseInt(localStorage.getItem('pet_ultimoTurnoTime') || '0');
     }
 
@@ -653,7 +645,7 @@
 
     let subMenuCursor = 0;
     let resetConfirmCursor = 1; // 0 = Sim, 1 = Não (default para segurança)
-    const menuOpcoesSub = ['Hora', 'Resetar', 'Voltar'];
+    const menuOpcoesSub = ['Resetar', 'Voltar'];
     
     const menuComida = ['Maçã', 'Pizza', 'Hambúrguer', 'Cogumelo'];
     const menuBrincar = ['Pular'];
@@ -1373,9 +1365,9 @@
     function reiniciarJogo() {
       fome = 100; felicidade = 100; idade = 0; vivo = true;
       temCoco = false; taDoente = false; turnosSujo = 0;
-      horaDefinida = false;
-      localStorage.setItem('pet_horaDefinida', 'false');
-      estadoAtual = TELA_AJUSTE_HORA;
+      horaDefinida = true;
+      localStorage.setItem('pet_horaDefinida', 'true');
+      estadoAtual = TELA_PET;
       campoAjuste = 0;
       ajusteHora = 12;
       ajusteMinuto = 0;
@@ -1389,6 +1381,7 @@
     // =============================================
     function pressBtn(id) {
       const b = document.getElementById(id);
+      if (!b) return;
       b.classList.add('pressed');
       setTimeout(() => b.classList.remove('pressed'), 100);
     }
@@ -1478,7 +1471,7 @@
           tocarSomBeep();
           break;
         case TELA_SUBMENU_OPCOES:
-          subMenuCursor = (subMenuCursor + 1) % 3;
+          subMenuCursor = (subMenuCursor + 1) % 2;
           tocarSomBeep();
           break;
         case TELA_CONFIRM_RESET:
@@ -1559,13 +1552,7 @@
           executarSubMenuComida();
           break;
         case TELA_SUBMENU_OPCOES:
-          if (subMenuCursor === 0) { // Hora
-            ajusteHora = 12;
-            ajusteMinuto = 0;
-            campoAjuste = 0;
-            estadoAtual = TELA_AJUSTE_HORA;
-            tocarSomBeep();
-          } else if (subMenuCursor === 1) { // Resetar
+          if (subMenuCursor === 0) { // Resetar
             resetConfirmCursor = 1; // Default para 'Não'
             estadoAtual = TELA_CONFIRM_RESET;
             tocarSomBeep();
@@ -1587,12 +1574,37 @@
       }
     }
 
-    btnDir.addEventListener('click', onBtnDireito);
+    window.addEventListener('mousedown', (e) => {
+      if (e.target.closest('#toggle-dev') || e.target.closest('.controls-panel')) return;
+      if (e.clientX < window.innerWidth / 2) {
+        iniciarHoldEsquerdo();
+      } else {
+        onBtnDireito(e);
+      }
+    });
+    window.addEventListener('mouseup', (e) => {
+      liberarEsquerdo();
+    });
+    window.addEventListener('touchstart', (e) => {
+      if (e.target.closest('#toggle-dev') || e.target.closest('.controls-panel')) return;
+      if (e.touches[0].clientX < window.innerWidth / 2) {
+        e.preventDefault();
+        iniciarHoldEsquerdo();
+      } else {
+        e.preventDefault();
+        onBtnDireito(e);
+      }
+    }, { passive: false });
+    window.addEventListener('touchend', (e) => {
+      liberarEsquerdo();
+    });
+    window.addEventListener('touchcancel', (e) => {
+      liberarEsquerdo();
+    });
 
     window.addEventListener('keydown', (e) => {
       if (e.repeat) return;
       if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
-        btnEsq.classList.add('pressed');
         iniciarHoldEsquerdo();
       }
       if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
@@ -1602,7 +1614,6 @@
 
     window.addEventListener('keyup', (e) => {
       if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
-        btnEsq.classList.remove('pressed');
         liberarEsquerdo();
       }
     });
@@ -1674,18 +1685,24 @@
     // =============================================
     // INICIALIZAÇÃO
     // =============================================
-    // Bloqueios de Autoplay de áudio no navegador exigem que o usuário interaja primeiro.
-    estadoAtual = TELA_DESLIGADO;
+    // Inicia a simulação automaticamente ao carregar a página
+    estadoAtual = TELA_BOOT;
+    tempoInicioBoot = performance.now();
+    startTimer();
     
-    document.body.addEventListener('click', () => {
-      if (estadoAtual === TELA_DESLIGADO) {
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-        estadoAtual = TELA_BOOT;
-        tempoInicioBoot = performance.now();
-        tocarSomBoot();
-        startTimer();
-      }
-    });
+    try {
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      tocarSomBoot();
+    } catch(e) {}
+
+    const toggleDev = document.getElementById('toggle-dev');
+    const toggleDevHandler = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      document.querySelector('.controls-panel').classList.toggle('dev-mode-active');
+    };
+    toggleDev.addEventListener('click', toggleDevHandler);
+    toggleDev.addEventListener('touchstart', toggleDevHandler, { passive: false });
 
     requestAnimationFrame(render);
   </script>
