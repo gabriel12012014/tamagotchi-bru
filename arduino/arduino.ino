@@ -1214,19 +1214,24 @@ void processarTickStatus() {
     if (idade % 3 == 0) fome = max(0, fome - 10);
     if (idade % 3 == 0) felicidade = max(0, felicidade - 10);
   } else {
-    // Fase Capivara (Normal) - Valores acelerados apenas no estado Saudável
-    if (!taDoente) {
-      if (!temCoco) {
-        if (idade % 15 == 0) fome = max(0, fome - 1);
-        if (idade % 10 == 0) felicidade = max(0, felicidade - 1);
-      } else {
-        if (idade % 15 == 0) fome = max(0, fome - 1);
-        if (idade % 5 == 0) felicidade = max(0, felicidade - 1); // Volta para o original (5 min)
-      }
-    } else {
-      if (idade % 15 == 0) fome = max(0, fome - 1); // Volta para o original (15 min)
-      if (idade % 5 == 0) felicidade = max(0, felicidade - 1); // Volta para o original (5 min)
+    // Fase Capivara (Normal) - Valores aleatórios com média de 12 horas para zerar
+    int dropFome = 0;
+    if (random(1000) < 31) { // Aprox 3.1% de chance a cada minuto
+      dropFome = random(1, 9); // Perde de 1 a 8
     }
+
+    int limiteFeliz = 31;
+    if (taDoente || temCoco) {
+      limiteFeliz = 62; // O dobro de chance de perder felicidade se sujo ou doente
+    }
+
+    int dropFeliz = 0;
+    if (random(1000) < limiteFeliz) {
+      dropFeliz = random(1, 9); // Perde de 1 a 8
+    }
+
+    fome = max(0, fome - dropFome);
+    felicidade = max(0, felicidade - dropFeliz);
   }
   
   idade++;
@@ -1236,14 +1241,14 @@ void processarTickStatus() {
     temCoco = true;
   }
 
-  // Agoniza por 12 horas após crescer se estiver zerado
+  // Agoniza por 48 horas (2 dias) após crescer se estiver zerado
   if (idade >= 60) {
     if (fome <= 0 || felicidade <= 0) {
       turnosZerado++;
-      if (turnosZerado % 60 == 0 && turnosZerado < 720) {
+      if (turnosZerado % 60 == 0 && turnosZerado < 2880) {
         tocarSomBeep(); // Beepa a cada 60 min de agonia
       }
-      if (turnosZerado >= 720) {
+      if (turnosZerado >= 2880) {
         fome = 0;
         felicidade = 0;
         vivo = false;

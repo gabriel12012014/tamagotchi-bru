@@ -1286,19 +1286,24 @@
         if (idade % 3 === 0) fome = Math.max(0, fome - 10);
         if (idade % 3 === 0) felicidade = Math.max(0, felicidade - 10);
       } else {
-        // Fase Capivara (Normal) - Valores acelerados apenas no estado SaudÃ¡vel
-        if (!taDoente) {
-          if (!temCoco) {
-            if (idade % 15 === 0) fome = Math.max(0, fome - 1);
-            if (idade % 10 === 0) felicidade = Math.max(0, felicidade - 1);
-          } else {
-            if (idade % 15 === 0) fome = Math.max(0, fome - 1);
-            if (idade % 5 === 0) felicidade = Math.max(0, felicidade - 1); // Volta para o original (5 min)
-          }
-        } else {
-          if (idade % 15 === 0) fome = Math.max(0, fome - 1); // Volta para o original (15 min)
-          if (idade % 5 === 0) felicidade = Math.max(0, felicidade - 1); // Volta para o original (5 min)
+        // Fase Capivara (Normal) - Valores aleatórios com média de 12 horas para zerar
+        let dropFome = 0;
+        if (Math.random() * 1000 < 31) { // Aprox 3.1% de chance a cada minuto
+          dropFome = Math.floor(Math.random() * 8) + 1; // Perde de 1 a 8
         }
+
+        let limiteFeliz = 31;
+        if (taDoente || temCoco) {
+          limiteFeliz = 62; // O dobro de chance de perder felicidade se sujo ou doente
+        }
+
+        let dropFeliz = 0;
+        if (Math.random() * 1000 < limiteFeliz) {
+          dropFeliz = Math.floor(Math.random() * 8) + 1; // Perde de 1 a 8
+        }
+
+        fome = Math.max(0, fome - dropFome);
+        felicidade = Math.max(0, felicidade - dropFeliz);
       }
       
       idade++;
@@ -1308,14 +1313,14 @@
         temCoco = true;
       }
 
-      // Agoniza por 12 horas apÃ³s crescer se estiver zerado
+      // Agoniza por 48 horas (2 dias) apÃ³s crescer se estiver zerado
       if (idade >= 60) {
         if (fome === 0 || felicidade === 0) {
           turnosZerado++;
-          if (turnosZerado % 60 === 0 && turnosZerado < 720) {
+          if (turnosZerado % 60 === 0 && turnosZerado < 2880) {
             tocarSomBeep(); // Beepa a cada 60 min de agonia
           }
-          if (turnosZerado >= 720) {
+          if (turnosZerado >= 2880) {
             vivo = false;
             estadoAtual = TELA_GAMEOVER;
             tocarSomFalha();
