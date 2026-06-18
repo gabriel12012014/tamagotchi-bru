@@ -65,6 +65,7 @@ const int TELA_REMEDIO = 11;
 const int TELA_AJUSTE_HORA = 12;
 const int TELA_SUBMENU_OPCOES = 13;
 const int TELA_CONFIRM_RESET = 14;
+const int TELA_STATUS_VIDA = 15;
 int estadoAtual = TELA_PET;
 
 bool estaDormindo() {
@@ -322,12 +323,40 @@ void loop() {
     }
   }
 
-  // Botão Direito (Debounce clássico)
-  if (digitalRead(BTN_DIREITO) == LOW && (agora - ultimoCliqueDir > 250)) {
+
+  static unsigned long tempoBotaoDir = 0;
+  static bool botaoDirPressionado = false;
+  static bool segurandoStatusVida = false;
+
+  // Botão Direito (Hold de 400ms)
+  if (digitalRead(BTN_DIREITO) == LOW) {
     ultimaInteracao = agora;
-    dirPress = true;
-    ultimoCliqueDir = agora;
+    if (!botaoDirPressionado) {
+      botaoDirPressionado = true;
+      tempoBotaoDir = agora;
+    } else {
+      if (!segurandoStatusVida && (agora - tempoBotaoDir > 400) && vivo && (estadoAtual == TELA_PET || estadoAtual == TELA_MENU)) {
+        segurandoStatusVida = true;
+        estadoAtual = TELA_STATUS_VIDA;
+      }
+    }
+  } else {
+    if (botaoDirPressionado) {
+      botaoDirPressionado = false;
+      unsigned long duracao = agora - tempoBotaoDir;
+      if (segurandoStatusVida) {
+        segurandoStatusVida = false;
+        if (estadoAtual == TELA_STATUS_VIDA) {
+          estadoAtual = TELA_PET;
+        }
+      } else {
+        if (duracao > 50) { // Debounce mínimo para clique
+          dirPress = true;
+        }
+      }
+    }
   }
+
 
   // ==========================================
   // 2. MÁQUINA DE ESTADOS (Navegação)
@@ -354,13 +383,9 @@ void loop() {
         }
         break;
       case TELA_PET:
-        if (estaDormindo()) {
-          tocarSomFalha();
-        } else {
-          estadoAtual = TELA_MENU;
-          menuCursor = 0;
-          tocarSomBeep();
-        }
+        estadoAtual = TELA_MENU;
+        menuCursor = 0;
+        tocarSomBeep();
         break;
       case TELA_MENU:
         menuCursor++;
@@ -371,6 +396,7 @@ void loop() {
         tocarSomBeep();
         break;
       case TELA_STATUS:
+      case TELA_STATUS_VIDA:
         estadoAtual = TELA_PET;
         break;
       case TELA_GAMEOVER:
@@ -439,6 +465,7 @@ void loop() {
         executarMenuAcao();
         break;
       case TELA_STATUS:
+      case TELA_STATUS_VIDA:
         estadoAtual = TELA_PET;
         break;
       case TELA_GAMEOVER:
@@ -566,6 +593,7 @@ void loop() {
     case TELA_AJUSTE_HORA: desenharAjusteHora(); break;
     case TELA_SUBMENU_OPCOES: desenharSubMenuOpcoes(); break;
     case TELA_CONFIRM_RESET: desenharTelaConfirmReset(); break;
+    case TELA_STATUS_VIDA: desenharTelaStatusVida(); break;
   }
 
   telaVirtual.pushSprite(0, 0);
@@ -575,6 +603,10 @@ void loop() {
 // Executa a ação selecionada no menu
 // ==========================================
 void executarMenuAcao() {
+  if (estaDormindo() && menuCursor < 5) {
+    tocarSomFalha();
+    return;
+  }
   tocarSomBeep();
   switch (menuCursor) {
     case 0:
@@ -799,23 +831,18 @@ void desenharMenu() {
 // TELA DE STATUS
 // ==========================================
 void desenharTelaStatus() {
-  int dias = idade / 1440;
-  String textIdade = "Id:" + String(dias) + "d";
-  int wIdade = textIdade.length() * 12;
-  int xIdade = (135 - wIdade) / 2;
-
-  telaVirtual.setTextColor(TFT_WHITE);
-  telaVirtual.setTextSize(2);
-  telaVirtual.setCursor(xIdade, 2 * 5);
-  telaVirtual.print(textIdade);
-
-  // Relógio abaixo da idade
   time_t agora_t = time(NULL);
   struct tm *t_info = localtime(&agora_t);
   char clockBuf[10];
   sprintf(clockBuf, "%02d:%02d", t_info->tm_hour, t_info->tm_min);
-  telaVirtual.setTextSize(1);
-  telaVirtual.setCursor(52, 8 * 5);
+  
+  String timeStr = String(clockBuf);
+  int wTime = timeStr.length() * 12;
+  int xTime = (135 - wTime) / 2;
+
+  telaVirtual.setTextColor(TFT_WHITE);
+  telaVirtual.setTextSize(2);
+  telaVirtual.setCursor(xTime, 4 * 5);
   telaVirtual.print(clockBuf);
 
   // --- FOME: ícone label + 3 indicadores ---
@@ -1064,6 +1091,32 @@ void desenharCoracao(int cx, int cy) {
   telaVirtual.fillRect((cx) * 5, (cy+2) * 5, 1 * 5, 1 * 5, TFT_WHITE);
 }
 
+
+void desenharTelaStatusVida() {
+  telaVirtual.fillScreen(TFT_BLACK);
+  
+  int dias = idade / 1440;
+  String lblDias = "Dias";
+  String valDias = String(dias);
+  String lblMin = "Minutos";
+  String valMin = String(idade);
+  
+  telaVirtual.setTextColor(TFT_WHITE);
+  telaVirtual.setTextSize(2);
+  
+  telaVirtual.setCursor((135 - lblDias.length() * 12) / 2, 8 * 5);
+  telaVirtual.print(lblDias);
+  
+  telaVirtual.setCursor((135 - valDias.length() * 12) / 2, 13 * 5);
+  telaVirtual.print(valDias);
+  
+  telaVirtual.setCursor((135 - lblMin.length() * 12) / 2, 26 * 5);
+  telaVirtual.print(lblMin);
+  
+  telaVirtual.setCursor((135 - valMin.length() * 12) / 2, 31 * 5);
+  telaVirtual.print(valMin);
+}
+
 void desenharTelaCarinho(unsigned long agora) {
   int respY = (int)(sin(agora / 800.0) * 1.0);
   int w, h;
@@ -1158,21 +1211,21 @@ void processarTickStatus() {
 
   if (idade < 60) {
     // Fase de Ovo (Bebê): Decaimento rápido mas imortal
-    if (idade % 10 == 0) fome = max(0, fome - 10);
-    if (idade % 10 == 0) felicidade = max(0, felicidade - 10);
+    if (idade % 3 == 0) fome = max(0, fome - 10);
+    if (idade % 3 == 0) felicidade = max(0, felicidade - 10);
   } else {
-    // Fase Capivara (Normal)
+    // Fase Capivara (Normal) - Valores acelerados apenas no estado Saudável
     if (!taDoente) {
       if (!temCoco) {
-        if (idade % 30 == 0) fome = max(0, fome - 1);
-        if (idade % 20 == 0) felicidade = max(0, felicidade - 1);
+        if (idade % 15 == 0) fome = max(0, fome - 1);
+        if (idade % 10 == 0) felicidade = max(0, felicidade - 1);
       } else {
-        if (idade % 30 == 0) fome = max(0, fome - 1);
-        if (idade % 5 == 0) felicidade = max(0, felicidade - 1); // -1 a cada 5 min quando sujo
+        if (idade % 15 == 0) fome = max(0, fome - 1);
+        if (idade % 5 == 0) felicidade = max(0, felicidade - 1); // Volta para o original (5 min)
       }
     } else {
-      if (idade % 15 == 0) fome = max(0, fome - 1);
-      if (idade % 5 == 0) felicidade = max(0, felicidade - 1); // -1 a cada 5 min quando doente
+      if (idade % 15 == 0) fome = max(0, fome - 1); // Volta para o original (15 min)
+      if (idade % 5 == 0) felicidade = max(0, felicidade - 1); // Volta para o original (5 min)
     }
   }
   

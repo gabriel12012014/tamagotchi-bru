@@ -406,7 +406,7 @@
 <body>
   <div class="static-overlay"></div>
 
-  <!-- === MENU DE SELEÇÃO DE CORES === -->
+  <!-- === MENU DE SELEÃ‡ÃƒO DE CORES === -->
   <div id="color-menu" class="color-menu-overlay">
     <div class="color-menu-header">
       <h3>Cor do Jogo</h3>
@@ -418,7 +418,7 @@
       <button class="color-dot" data-color="#22c55e" style="background: #22c55e;" title="Verde Matrix"></button>
       <button class="color-dot" data-color="#3b82f6" style="background: #3b82f6;" title="Azul Tech"></button>
       <button class="color-dot" data-color="#ef4444" style="background: #ef4444;" title="Vermelho Alerta"></button>
-      <button class="color-dot" data-color="#eab308" style="background: #eab308;" title="Amarelo Retrô"></button>
+      <button class="color-dot" data-color="#eab308" style="background: #eab308;" title="Amarelo RetrÃ´"></button>
       <button class="color-dot" data-color="#a855f7" style="background: #a855f7;" title="Roxo Cyber"></button>
     </div>
 
@@ -468,13 +468,13 @@
 
     <!-- === PAINEL DE CONTROLE === -->
     <div class="controls-panel">      <div class="panel-header">
-        <h2>Monitor de Variáveis</h2>
-        <p>Valores internos da simulação em tempo real</p>
+        <h2>Monitor de VariÃ¡veis</h2>
+        <p>Valores internos da simulaÃ§Ã£o em tempo real</p>
       </div>
 
       <div style="display:flex; justify-content:space-between; align-items:center;">
         <span style="font-size:0.8rem; color:var(--text-muted);">Tela Atual:</span>
-        <span class="screen-mode-badge pet" id="screen-badge">🐾 Pet</span>
+        <span class="screen-mode-badge pet" id="screen-badge">ðŸ¾ Pet</span>
       </div>
 
       <div class="live-stats">
@@ -483,7 +483,7 @@
           <div class="stat-value"><span id="live-fome">100</span><span class="stat-unit">%</span></div>
         </div>
         <div class="stat-box" id="stat-felicidade-box">
-          <div class="stat-label">Diversão</div>
+          <div class="stat-label">DiversÃ£o</div>
           <div class="stat-value"><span id="live-felicidade">100</span><span class="stat-unit">%</span></div>
         </div>
         <div class="stat-box" id="stat-idade-box">
@@ -495,7 +495,7 @@
       <div class="config-section">
         <div class="config-title">
           Velocidade do Tempo
-          <span class="val" id="speed-indicator">1x (Padrão)</span>
+          <span class="val" id="speed-indicator">1x (PadrÃ£o)</span>
         </div>
         <input type="range" class="speed-slider" id="speed-slider" min="1" max="20" value="1">
       </div>
@@ -513,12 +513,12 @@
       </div>
 
       <div style="display: flex; gap: 0.5rem; width: 100%; margin-top: 0.5rem;">
-        <button class="btn-debug" id="btn-trigger-hatch">🥚 Chocar Ovo</button>
-        <button class="btn-debug" id="btn-trigger-poop">💩 +Cocô</button>
-        <button class="btn-debug" id="btn-trigger-sick">🤢 +Doença</button>
+        <button class="btn-debug" id="btn-trigger-hatch">ðŸ¥š Chocar Ovo</button>
+        <button class="btn-debug" id="btn-trigger-poop">ðŸ’© +CocÃ´</button>
+        <button class="btn-debug" id="btn-trigger-sick">ðŸ¤¢ +DoenÃ§a</button>
       </div>
 
-      <button class="btn-reset" id="btn-reset-virtual" style="margin-top: 0.5rem;">Forçar Morte / Resetar</button>
+      <button class="btn-reset" id="btn-reset-virtual" style="margin-top: 0.5rem;">ForÃ§ar Morte / Resetar</button>
     </div>
   </div>
 
@@ -528,7 +528,7 @@
 
   <script>
     // =============================================
-    // BITMAP FONT 5x7 (réplica do TFT_eSPI)
+    // BITMAP FONT 5x7 (rÃ©plica do TFT_eSPI)
     // =============================================
     const FONT_5x7 = {
       32:[0x00,0x00,0x00,0x00,0x00],33:[0x00,0x00,0x5F,0x00,0x00],
@@ -666,7 +666,7 @@
       corTema = cor;
       localStorage.setItem('pet_corTema', cor);
       
-      // Atualiza variáveis CSS
+      // Atualiza variÃ¡veis CSS
       document.documentElement.style.setProperty('--accent-color', cor);
       document.documentElement.style.setProperty('--accent-glow', hexToRgbA(cor, 0.35));
       document.documentElement.style.setProperty('--accent-glow-light', hexToRgbA(cor, 0.15));
@@ -719,7 +719,7 @@
     // =============================================
     // ESTADO DO JOGO
     // =============================================
-    const TELA_PET = 0, TELA_MENU = 1, TELA_STATUS = 2, TELA_GAMEOVER = 3, TELA_COMER = 4, TELA_MSG_SUCESSO = 5, TELA_CARINHO = 6, TELA_SUBMENU_COMER = 7, TELA_SUBMENU_BRINCAR = 8, TELA_PULAR = 9, TELA_BANHO = 10, TELA_REMEDIO = 11, TELA_AJUSTE_HORA = 12, TELA_SUBMENU_OPCOES = 13, TELA_CONFIRM_RESET = 14, TELA_BOOT = 15, TELA_DESLIGADO = -1;
+    const TELA_PET = 0, TELA_MENU = 1, TELA_STATUS = 2, TELA_GAMEOVER = 3, TELA_COMER = 4, TELA_MSG_SUCESSO = 5, TELA_CARINHO = 6, TELA_SUBMENU_COMER = 7, TELA_SUBMENU_BRINCAR = 8, TELA_PULAR = 9, TELA_BANHO = 10, TELA_REMEDIO = 11, TELA_AJUSTE_HORA = 12, TELA_SUBMENU_OPCOES = 13, TELA_CONFIRM_RESET = 14, TELA_BOOT = 15, TELA_STATUS_VIDA = 16, TELA_DESLIGADO = -1;
     let estadoAtual = TELA_DESLIGADO;
     let tempoInicioBoot = 0;
     const imgBootLogo = new Image();
@@ -730,7 +730,7 @@
     // Status
     let fome = 100, felicidade = 100, idade = 0, vivo = true, temCoco = false, taDoente = false, turnosSujo = 0, turnosZerado = 0;
     
-    // Variáveis do Ajuste de Hora
+    // VariÃ¡veis do Ajuste de Hora
     let ajusteHora = 12;
     let ajusteMinuto = 0;
     let campoAjuste = 0;
@@ -764,7 +764,7 @@
 
     function estaDormindo() {
       if (!horaDefinida) return false;
-      if (idade < 60) return false; // Ovo/bebê não dorme
+      if (idade < 60) return false; // Ovo/bebÃª nÃ£o dorme
       const d = getSimulatedTime();
       const hr = d.getHours();
       return (hr >= 22 || hr < 8);
@@ -795,13 +795,13 @@
     
     let menuCursor = 0;
     const MENU_TOTAL = 7;
-    const menuOpcoes = ['Comer', 'Brincar', 'Carinho', 'Banho', 'Remédio', 'Status', 'Opções'];
+    const menuOpcoes = ['Comer', 'Brincar', 'Carinho', 'Banho', 'RemÃ©dio', 'Status', 'OpÃ§Ãµes'];
 
     let subMenuCursor = 0;
-    let resetConfirmCursor = 1; // 0 = Sim, 1 = Não (default para segurança)
+    let resetConfirmCursor = 1; // 0 = Sim, 1 = NÃ£o (default para seguranÃ§a)
     const menuOpcoesSub = ['Resetar', 'Voltar'];
     
-    const menuComida = ['Maçã', 'Pizza', 'Hambúrguer', 'Cogumelo'];
+    const menuComida = ['MaÃ§Ã£', 'Pizza', 'HambÃºrguer', 'Cogumelo'];
     const menuBrincar = ['Pular'];
     let comidaSelecionada = 0;
     let comidaBloqueada = false;
@@ -849,7 +849,7 @@
     }
 
     // =============================================
-    // TELA MENU (tela cheia com opções)
+    // TELA MENU (tela cheia com opÃ§Ãµes)
     // =============================================
     function desenharMenu() {
       fillRect(0, 0, 27, 48, '#000000');
@@ -860,7 +860,7 @@
       const y = 112 / 5; // 22.4 (Centro vertical aproximado)
       
       drawText(texto, x, y, '#ffffff', 2);
-      drawText(texto, x + (1/5), y, '#ffffff', 2); // Falso Negrito (deslocamento de 1 pixel físico)
+      drawText(texto, x + (1/5), y, '#ffffff', 2); // Falso Negrito (deslocamento de 1 pixel fÃ­sico)
 
       // Setinha para baixo
       const arrowY = y + (26 / 5);
@@ -873,23 +873,19 @@
     // TELA STATUS
     // =============================================
     function desenharTelaStatus() {
-      const dias = Math.floor(idade / 1440);
-      const textIdade = 'Id:' + dias + 'd';
-      const wIdade = textIdade.length * 12; 
-      const xIdade = (135 - wIdade) / 2 / 5; 
-      drawText(textIdade, xIdade, 2, '#ffffff', 2);
-
-      // Relógio abaixo da idade
       const d = getSimulatedTime();
       const hStr = String(d.getHours()).padStart(2, '0');
       const mStr = String(d.getMinutes()).padStart(2, '0');
-      drawText(`${hStr}:${mStr}`, 10, 8, '#ffffff', 1);
+      const timeStr = `${hStr}:${mStr}`;
+      const wTime = timeStr.length * 12; 
+      const xTime = (135 - wTime) / 2 / 5; 
+      drawText(timeStr, xTime, 4, '#ffffff', 2);
 
       // --- FOME: 4 ícones (label + 3 indicadores) ---
       // Ícone label (esquerda)
       const fomeImg = getSpriteImage(icone_fome_sprite, icone_fome_width, icone_fome_height);
       ctx.drawImage(fomeImg, 1*5, 15*5, icone_fome_width*5, icone_fome_height*5);
-      // 3 ícones indicadores: somem da direita conforme fome baixa
+      // 3 Ã­cones indicadores: somem da direita conforme fome baixa
       const qtdFome = Math.round((fome / 100) * 3);
       const iconeEspacoFome = icone_fome_width + 2;
       const xInicioFome = icone_fome_width + 3;
@@ -900,11 +896,11 @@
         }
       }
 
-      // --- FELICIDADE: 4 ícones (label + 3 indicadores) ---
-      // Ícone label (esquerda)
+      // --- FELICIDADE: 4 Ã­cones (label + 3 indicadores) ---
+      // Ãcone label (esquerda)
       const felzImg = getSpriteImage(icone_felicidade_sprite, icone_felicidade_width, icone_felicidade_height);
       ctx.drawImage(felzImg, 1*5, 30*5, icone_felicidade_width*5, icone_felicidade_height*5);
-      // 3 ícones indicadores: somem da direita conforme felicidade baixa
+      // 3 Ã­cones indicadores: somem da direita conforme felicidade baixa
       const qtdFelz = Math.round((felicidade / 100) * 3);
       const iconeEspacoFelz = icone_felicidade_width + 2;
       const xInicioFelz = icone_felicidade_width + 3;
@@ -917,8 +913,28 @@
     }
 
     // =============================================
-    // DESENHO DE CORAÇÃO E TELA DE CARINHO
+    // DESENHO DE CORAÃ‡ÃƒO E TELA DE CARINHO
     // =============================================
+        function desenharTelaStatusVida() {
+      fillRect(0, 0, 27, 48, '#000000');
+      const dias = Math.floor(idade / 1440);
+      
+      const labelDias = "Dias";
+      const valDias = String(dias);
+      const labelMin = "Minutos";
+      const valMin = String(idade);
+
+      const xDiasL = (135 - labelDias.length * 12) / 2 / 5;
+      drawText(labelDias, xDiasL, 8, '#ffffff', 2);
+      const xDiasV = (135 - valDias.length * 12) / 2 / 5;
+      drawText(valDias, xDiasV, 13, '#ffffff', 2);
+
+      const xMinL = (135 - labelMin.length * 12) / 2 / 5;
+      drawText(labelMin, xMinL, 26, '#ffffff', 2);
+      const xMinV = (135 - valMin.length * 12) / 2 / 5;
+      drawText(valMin, xMinV, 31, '#ffffff', 2);
+    }
+
     function desenharCoracao(cx, cy) {
       fillRect(cx-1, cy-1, 1, 1, '#ffffff');
       fillRect(cx+1, cy-1, 1, 1, '#ffffff');
@@ -938,7 +954,7 @@
       ctx.imageSmoothingEnabled = false;
       ctx.drawImage(pet.img, x*5, y*5, pet.w*5, pet.h*5);
 
-      const floatY = (progresso / 1500) * 8; // Sobe 8 pixels lógicos
+      const floatY = (progresso / 1500) * 8; // Sobe 8 pixels lÃ³gicos
       desenharCoracao(x + 3, y - 2 - floatY);
       desenharCoracao(x + pet.w - 4, y - 5 - floatY);
     }
@@ -951,7 +967,7 @@
       ctx.imageSmoothingEnabled = false;
 
       if (comidaBloqueada) {
-        // Sujo: mostra pet + interrogação (igual ao remédio sem doença)
+        // Sujo: mostra pet + interrogaÃ§Ã£o (igual ao remÃ©dio sem doenÃ§a)
         const pet = getPetSprite();
         const x = Math.floor((27 - pet.w) / 2);
         const y = Math.floor((48 - pet.h) / 2) + 5;
@@ -959,7 +975,7 @@
         const qImg = getSpriteImage(interrogacao_sprite, interrogacao_width, interrogacao_height);
         ctx.drawImage(qImg, (x + pet.w - 5)*5, (y - 8)*5, interrogacao_width*5, interrogacao_height*5);
       } else {
-        // Limpo: animação normal de comer
+        // Limpo: animaÃ§Ã£o normal de comer
         let cx = 13; let cy = 24;
         if (Math.floor(progresso / 100) % 2 === 0) {
           cx += Math.floor(Math.random() * 3) - 1; cy += Math.floor(Math.random() * 3) - 1;
@@ -1069,7 +1085,7 @@
       ctx.imageSmoothingEnabled = false;
       ctx.drawImage(pet.img, x*5, y*5, pet.w*5, pet.h*5);
       
-      // Animação de banho (bolhas de sabão caindo)
+      // AnimaÃ§Ã£o de banho (bolhas de sabÃ£o caindo)
       if (progresso < 1500) {
         const offset = Math.floor(progresso / 30) % 48; // Cai na tela
         fillRect(x + 2, (y - 10 + offset) % 48, 2, 2, '#ffffff');
@@ -1080,7 +1096,7 @@
     }
     
     // =============================================
-    // TELA DE MENSAGEM DE SUCESSO TEMPORÁRIA
+    // TELA DE MENSAGEM DE SUCESSO TEMPORÃRIA
     // =============================================
     function desenharMensagemSucesso() {
       drawText(msgSucessoTitulo, 5, 16, '#ffffff', 1);
@@ -1127,7 +1143,7 @@
         ctx.imageSmoothingEnabled = true; // Permite renderizar a logo com qualidade (sem travar nos pixels virtuais 5x5)
         let w = imgBootLogo.naturalWidth;
         let h = imgBootLogo.naturalHeight;
-        // Ajusta a largura se for maior que a tela, mantendo a proporção
+        // Ajusta a largura se for maior que a tela, mantendo a proporÃ§Ã£o
         if (w > 125) {
           h = h * (125 / w);
           w = 125;
@@ -1145,13 +1161,19 @@
       fillSprite('#000000');
       const now = performance.now();
 
-      // Botão Esquerdo Hold Logic
+      // BotÃ£o Esquerdo Hold Logic
       if (botaoEsqPressionado && !segurandoStatus && (now - tempoBotaoEsq > 400) && vivo && (estadoAtual === TELA_PET || estadoAtual === TELA_MENU)) {
         segurandoStatus = true;
         estadoAtual = TELA_STATUS;
       }
 
-      // Avanço rápido no hold do botão esquerdo na tela de ajuste de hora
+      // Botão Direito Hold Logic
+      if (botaoDirPressionado && !segurandoStatusVida && (now - tempoBotaoDir > 400) && vivo && (estadoAtual === TELA_PET || estadoAtual === TELA_MENU)) {
+        segurandoStatusVida = true;
+        estadoAtual = TELA_STATUS_VIDA;
+      }
+
+      // AvanÃ§o rÃ¡pido no hold do botÃ£o esquerdo na tela de ajuste de hora
       if (botaoEsqPressionado && (now - tempoBotaoEsq > 400) && (estadoAtual === TELA_AJUSTE_HORA)) {
         if (now - ultimoIncrementoHora > 100) {
           ultimoIncrementoHora = now;
@@ -1179,7 +1201,7 @@
         }
       }
       
-      // Controle de Animações Automáticas
+      // Controle de AnimaÃ§Ãµes AutomÃ¡ticas
       if (estadoAtual === TELA_COMER || estadoAtual === TELA_CARINHO || estadoAtual === TELA_PULAR || estadoAtual === TELA_BANHO || estadoAtual === TELA_REMEDIO) {
         if (now - tempoInicioAnimacao > 1500) {
           if (estadoAtual === TELA_BANHO) {
@@ -1209,6 +1231,7 @@
         case TELA_SUBMENU_OPCOES: desenharSubMenuOpcoes(); break;
         case TELA_CONFIRM_RESET: desenharTelaConfirmReset(); break;
         case TELA_BOOT:     desenharTelaBoot(); break;
+        case TELA_STATUS_VIDA: desenharTelaStatusVida(); break;
         case TELA_DESLIGADO: desenharTelaDesligado(); break;
       }
 
@@ -1224,21 +1247,21 @@
       // Badge de tela
       const badge = document.getElementById('screen-badge');
       const badgeMap = {
-        [TELA_PET]:      { text: '🐾 Pet',       cls: 'screen-mode-badge pet' },
-        [TELA_MENU]:     { text: '📋 Menu',      cls: 'screen-mode-badge status' },
-        [TELA_STATUS]:   { text: '📊 Status',    cls: 'screen-mode-badge status' },
-        [TELA_GAMEOVER]: { text: '💀 Game Over', cls: 'screen-mode-badge gameover' },
-        [TELA_COMER]:    { text: '🍎 Comendo',   cls: 'screen-mode-badge status' },
-        [TELA_MSG_SUCESSO]: { text: '🎉 Sucesso',  cls: 'screen-mode-badge pet' },
-        [TELA_CARINHO]:  { text: '💖 Carinho',   cls: 'screen-mode-badge status' },
-        [TELA_SUBMENU_COMER]: { text: '🍎 Comida', cls: 'screen-mode-badge status' },
-        [TELA_SUBMENU_BRINCAR]: { text: '🎮 Brincar', cls: 'screen-mode-badge status' },
-        [TELA_PULAR]:    { text: '🏃 Pular', cls: 'screen-mode-badge status' },
-        [TELA_BANHO]:    { text: '🧼 Banho', cls: 'screen-mode-badge status' },
-        [TELA_AJUSTE_HORA]: { text: '🕒 Ajustar Hora', cls: 'screen-mode-badge status' },
-        [TELA_BOOT]:     { text: '🚀 Inicializando', cls: 'screen-mode-badge status' },
+        [TELA_PET]:      { text: 'ðŸ¾ Pet',       cls: 'screen-mode-badge pet' },
+        [TELA_MENU]:     { text: 'ðŸ“‹ Menu',      cls: 'screen-mode-badge status' },
+        [TELA_STATUS]:   { text: 'ðŸ“Š Status',    cls: 'screen-mode-badge status' },
+        [TELA_GAMEOVER]: { text: 'ðŸ’€ Game Over', cls: 'screen-mode-badge gameover' },
+        [TELA_COMER]:    { text: 'ðŸŽ Comendo',   cls: 'screen-mode-badge status' },
+        [TELA_MSG_SUCESSO]: { text: 'ðŸŽ‰ Sucesso',  cls: 'screen-mode-badge pet' },
+        [TELA_CARINHO]:  { text: 'ðŸ’– Carinho',   cls: 'screen-mode-badge status' },
+        [TELA_SUBMENU_COMER]: { text: 'ðŸŽ Comida', cls: 'screen-mode-badge status' },
+        [TELA_SUBMENU_BRINCAR]: { text: 'ðŸŽ® Brincar', cls: 'screen-mode-badge status' },
+        [TELA_PULAR]:    { text: 'ðŸƒ Pular', cls: 'screen-mode-badge status' },
+        [TELA_BANHO]:    { text: 'ðŸ§¼ Banho', cls: 'screen-mode-badge status' },
+        [TELA_AJUSTE_HORA]: { text: 'ðŸ•’ Ajustar Hora', cls: 'screen-mode-badge status' },
+        [TELA_BOOT]:     { text: 'ðŸš€ Inicializando', cls: 'screen-mode-badge status' },
       };
-      const b = badgeMap[estadoAtual] || { text: '❓ ' + estadoAtual, cls: 'screen-mode-badge status' };
+      const b = badgeMap[estadoAtual] || { text: 'â“ ' + estadoAtual, cls: 'screen-mode-badge status' };
       badge.textContent = b.text;
       badge.className = b.cls;
 
@@ -1259,11 +1282,11 @@
       }
 
       if (idade < 60) {
-        // Fase de Ovo (Bebê): Decaimento rápido mas imortal
+        // Fase de Ovo (BebÃª): Decaimento rÃ¡pido mas imortal
         if (idade % 3 === 0) fome = Math.max(0, fome - 10);
         if (idade % 3 === 0) felicidade = Math.max(0, felicidade - 10);
       } else {
-        // Fase Capivara (Normal) - Valores acelerados apenas no estado Saudável
+        // Fase Capivara (Normal) - Valores acelerados apenas no estado SaudÃ¡vel
         if (!taDoente) {
           if (!temCoco) {
             if (idade % 15 === 0) fome = Math.max(0, fome - 1);
@@ -1285,7 +1308,7 @@
         temCoco = true;
       }
 
-      // Agoniza por 12 horas após crescer se estiver zerado
+      // Agoniza por 12 horas apÃ³s crescer se estiver zerado
       if (idade >= 60) {
         if (fome === 0 || felicidade === 0) {
           turnosZerado++;
@@ -1407,7 +1430,7 @@
       fillRect(0, 0, 27, 48, '#000000');
       drawText('TEM CERTEZA?', 2, 8, '#ffffff', 1);
       
-      const opcoes = ['Sim', 'Não'];
+      const opcoes = ['Sim', 'NÃ£o'];
       for (let i = 0; i < 2; i++) {
         const y = 20 + i * 9;
         if (i === resetConfirmCursor) {
@@ -1429,6 +1452,10 @@
     // A ES DO MENU
     // =============================================
     function executarMenuAcao() {
+      if (estaDormindo() && menuCursor < 5) {
+        tocarSomFalha();
+        return;
+      }
       tocarSomBeep();
       switch (menuCursor) {
         case 0:
@@ -1532,7 +1559,7 @@
     }
 
     // =============================================
-    // MÁQUINA DE ESTADOS - INPUT
+    // MÃQUINA DE ESTADOS - INPUT
     // =============================================
     function pressBtn(id) {
       const b = document.getElementById(id);
@@ -1593,13 +1620,9 @@
       }
       switch (estadoAtual) {
         case TELA_PET:
-          if (estaDormindo()) {
-            tocarSomFalha();
-          } else {
-            estadoAtual = TELA_MENU;
-            menuCursor = 0;
-            tocarSomBeep();
-          }
+          estadoAtual = TELA_MENU;
+          menuCursor = 0;
+          tocarSomBeep();
           break;
         case TELA_MENU:
           menuCursor++;
@@ -1610,6 +1633,7 @@
           tocarSomBeep();
           break;
         case TELA_STATUS:
+        case TELA_STATUS_VIDA:
           estadoAtual = TELA_PET;
           break;
         case TELA_GAMEOVER:
@@ -1656,14 +1680,64 @@
 
     btnEsq.addEventListener('mousedown', onPressEsqStart);
     btnEsq.addEventListener('touchstart', onPressEsqStart, { passive: false });
+
+    function onPressDirStart(e) {
+      if (e) e.preventDefault();
+      btnDir.classList.add('pressed');
+      iniciarHoldDireito();
+    }
+
+    function onPressDirEnd(e) {
+      if (e) e.preventDefault();
+      btnDir.classList.remove('pressed');
+      liberarDireito();
+    }
+
+    btnDir.addEventListener('mousedown', onPressDirStart);
+    btnDir.addEventListener('touchstart', onPressDirStart, { passive: false });
+    
+    // Add to window mouseup/touchend
+
     
     window.addEventListener('mouseup', onPressEsqEnd);
     window.addEventListener('touchend', onPressEsqEnd, { passive: false });
     window.addEventListener('touchcancel', onPressEsqEnd, { passive: false });
 
-    function onBtnDireito() {
+    
+    let tempoBotaoDir = 0;
+    let segurandoStatusVida = false;
+    let botaoDirPressionado = false;
+
+    function iniciarHoldDireito() {
+      if (!vivo) {
+        botaoDirPressionado = true;
+        return;
+      }
+      if (!botaoDirPressionado) {
+        botaoDirPressionado = true;
+        segurandoStatusVida = false;
+        tempoBotaoDir = performance.now();
+      }
+    }
+
+    function liberarDireito() {
+      if (!botaoDirPressionado) return;
+      botaoDirPressionado = false;
+
+      if (segurandoStatusVida) {
+        segurandoStatusVida = false;
+        if (estadoAtual === TELA_STATUS_VIDA) {
+          estadoAtual = TELA_PET;
+        }
+      } else {
+        executarCliqueDireito();
+      }
+    }
+
+    function executarCliqueDireito() {
       pressBtn('btn-dir');
       if (estadoAtual === TELA_AJUSTE_HORA) {
+
         if (campoAjuste === 0 || campoAjuste === 1) {
           campoAjuste = (campoAjuste + 1) % 3;
           tocarSomBeep();
@@ -1693,6 +1767,7 @@
           executarMenuAcao();
           break;
         case TELA_STATUS:
+        case TELA_STATUS_VIDA:
           estadoAtual = TELA_PET;
           break;
         case TELA_GAMEOVER:
@@ -1708,7 +1783,7 @@
           break;
         case TELA_SUBMENU_OPCOES:
           if (subMenuCursor === 0) { // Resetar
-            resetConfirmCursor = 1; // Default para 'Não'
+            resetConfirmCursor = 1; // Default para 'NÃ£o'
             estadoAtual = TELA_CONFIRM_RESET;
             tocarSomBeep();
           } else { // Voltar
@@ -1719,7 +1794,7 @@
         case TELA_CONFIRM_RESET:
           if (resetConfirmCursor === 0) { // Sim
             reiniciarJogo();
-          } else { // Não
+          } else { // NÃ£o
             estadoAtual = TELA_SUBMENU_OPCOES;
             tocarSomBeep();
           }
@@ -1736,11 +1811,12 @@
       if (e.clientX < window.innerWidth / 2) {
         iniciarHoldEsquerdo();
       } else {
-        onBtnDireito(e);
+        iniciarHoldDireito();
       }
     });
     window.addEventListener('mouseup', (e) => {
       liberarEsquerdo();
+      liberarDireito();
     });
     window.addEventListener('touchstart', (e) => {
       if (e.target.closest('#toggle-dev') || e.target.closest('.controls-panel') || e.target.closest('#color-menu')) return;
@@ -1751,14 +1827,16 @@
         iniciarHoldEsquerdo();
       } else {
         e.preventDefault();
-        onBtnDireito(e);
+        iniciarHoldDireito();
       }
     }, { passive: false });
     window.addEventListener('touchend', (e) => {
       liberarEsquerdo();
+      liberarDireito();
     });
     window.addEventListener('touchcancel', (e) => {
       liberarEsquerdo();
+      liberarDireito();
     });
 
     window.addEventListener('keydown', (e) => {
@@ -1769,7 +1847,7 @@
         iniciarHoldEsquerdo();
       }
       if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
-        onBtnDireito();
+        iniciarHoldDireito();
       }
     });
 
@@ -1778,6 +1856,9 @@
       if (menu && menu.classList.contains('open')) return;
       if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
         liberarEsquerdo();
+      }
+      if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
+        liberarDireito();
       }
     });
 
@@ -1815,9 +1896,9 @@
     speedSlider.addEventListener('input', (e) => {
       speedMultiplier = parseInt(e.target.value);
       let d = `${speedMultiplier}x`;
-      if (speedMultiplier === 1) d += ' (Padrão)';
+      if (speedMultiplier === 1) d += ' (PadrÃ£o)';
       else if (speedMultiplier >= 10) d += ' (Ultra)';
-      else if (speedMultiplier >= 5) d += ' (Rápido)';
+      else if (speedMultiplier >= 5) d += ' (RÃ¡pido)';
       speedIndicator.textContent = d;
       startTimer();
     });
@@ -1846,9 +1927,9 @@
     buildPins('pins-right', pinLabelsRight, 'right');
 
     // =============================================
-    // INICIALIZAÇÃO
+    // INICIALIZAÃ‡ÃƒO
     // =============================================
-    // Inicia a simulação automaticamente ao carregar a página
+    // Inicia a simulaÃ§Ã£o automaticamente ao carregar a pÃ¡gina
     estadoAtual = TELA_BOOT;
     tempoInicioBoot = performance.now();
     startTimer();
@@ -1867,7 +1948,7 @@
     toggleDev.addEventListener('click', toggleDevHandler);
     toggleDev.addEventListener('touchstart', toggleDevHandler, { passive: false });
 
-    // Recalcula o tempo offline quando a aba volta a ficar visível ou ganha foco (comum em celulares)
+    // Recalcula o tempo offline quando a aba volta a ficar visÃ­vel ou ganha foco (comum em celulares)
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible') {
         verificarPassagemTempo();
@@ -1881,7 +1962,7 @@
     const colorMenu = document.getElementById('color-menu');
     const closeBtn = document.getElementById('btn-close-colors');
 
-    // Fechar ao clicar no botão de fechar (X)
+    // Fechar ao clicar no botÃ£o de fechar (X)
     const handleCloseColors = (e) => {
       e.preventDefault();
       e.stopPropagation();
@@ -1891,14 +1972,14 @@
     closeBtn.addEventListener('click', handleCloseColors);
     closeBtn.addEventListener('touchstart', handleCloseColors, { passive: false });
 
-    // Fechar quando clicar fora do conteúdo do menu
+    // Fechar quando clicar fora do conteÃºdo do menu
     document.addEventListener('click', (e) => {
       if (colorMenu.classList.contains('open') && !colorMenu.contains(e.target) && e.target.id !== 'color-menu') {
         colorMenu.classList.remove('open');
       }
     });
 
-    // Botões de cores pré-definidas (Presets)
+    // BotÃµes de cores prÃ©-definidas (Presets)
     document.querySelectorAll('.color-dot').forEach(dot => {
       const handleSelectColor = (e) => {
         e.preventDefault();
@@ -1914,7 +1995,7 @@
     // Aplica a cor inicial salva
     aplicarCorTema(corTema);
 
-    // === DETECÇÃO DE GESTOS (Arrastar para cima/baixo) ===
+    // === DETECÃ‡ÃƒO DE GESTOS (Arrastar para cima/baixo) ===
     let startY = 0;
     let startX = 0;
     let isDragging = false;
