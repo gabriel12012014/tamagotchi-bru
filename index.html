@@ -719,7 +719,7 @@
     // =============================================
     // ESTADO DO JOGO
     // =============================================
-    const TELA_PET = 0, TELA_MENU = 1, TELA_STATUS = 2, TELA_GAMEOVER = 3, TELA_COMER = 4, TELA_MSG_SUCESSO = 5, TELA_CARINHO = 6, TELA_SUBMENU_COMER = 7, TELA_SUBMENU_BRINCAR = 8, TELA_PULAR = 9, TELA_BANHO = 10, TELA_REMEDIO = 11, TELA_AJUSTE_HORA = 12, TELA_SUBMENU_OPCOES = 13, TELA_CONFIRM_RESET = 14, TELA_BOOT = 15, TELA_DESLIGADO = -1;
+    const TELA_PET = 0, TELA_MENU = 1, TELA_STATUS = 2, TELA_GAMEOVER = 3, TELA_COMER = 4, TELA_MSG_SUCESSO = 5, TELA_CARINHO = 6, TELA_SUBMENU_COMER = 7, TELA_SUBMENU_BRINCAR = 8, TELA_PULAR = 9, TELA_BANHO = 10, TELA_REMEDIO = 11, TELA_AJUSTE_HORA = 12, TELA_SUBMENU_OPCOES = 13, TELA_CONFIRM_RESET = 14, TELA_BOOT = 15, TELA_STATUS_VIDA = 16, TELA_DESLIGADO = -1;
     let estadoAtual = TELA_DESLIGADO;
     let tempoInicioBoot = 0;
     const imgBootLogo = new Image();
@@ -873,17 +873,13 @@
     // TELA STATUS
     // =============================================
     function desenharTelaStatus() {
-      const dias = Math.floor(idade / 1440);
-      const textIdade = 'Id:' + dias + 'd';
-      const wIdade = textIdade.length * 12; 
-      const xIdade = (135 - wIdade) / 2 / 5; 
-      drawText(textIdade, xIdade, 2, '#ffffff', 2);
-
-      // Relógio abaixo da idade
       const d = getSimulatedTime();
       const hStr = String(d.getHours()).padStart(2, '0');
       const mStr = String(d.getMinutes()).padStart(2, '0');
-      drawText(`${hStr}:${mStr}`, 10, 8, '#ffffff', 1);
+      const timeStr = `${hStr}:${mStr}`;
+      const wTime = timeStr.length * 12; 
+      const xTime = (135 - wTime) / 2 / 5; 
+      drawText(timeStr, xTime, 4, '#ffffff', 2);
 
       // --- FOME: 4 ícones (label + 3 indicadores) ---
       // Ícone label (esquerda)
@@ -914,6 +910,26 @@
           ctx.drawImage(img, (xInicioFelz + i * iconeEspacoFelz)*5, 30*5, icone_felicidade_width*5, icone_felicidade_height*5);
         }
       }
+    }
+
+    function desenharTelaStatusVida() {
+      fillRect(0, 0, 27, 48, '#000000');
+      const dias = Math.floor(idade / 1440);
+      
+      const labelDias = "Dias";
+      const valDias = String(dias);
+      const labelMin = "Minutos";
+      const valMin = String(idade);
+
+      const xDiasL = (135 - labelDias.length * 12) / 2 / 5;
+      drawText(labelDias, xDiasL, 8, '#ffffff', 2);
+      const xDiasV = (135 - valDias.length * 12) / 2 / 5;
+      drawText(valDias, xDiasV, 13, '#ffffff', 2);
+
+      const xMinL = (135 - labelMin.length * 12) / 2 / 5;
+      drawText(labelMin, xMinL, 26, '#ffffff', 2);
+      const xMinV = (135 - valMin.length * 12) / 2 / 5;
+      drawText(valMin, xMinV, 31, '#ffffff', 2);
     }
 
     // =============================================
@@ -1151,6 +1167,12 @@
         estadoAtual = TELA_STATUS;
       }
 
+      // Botão Direito Hold Logic
+      if (botaoDirPressionado && !segurandoStatusVida && (now - tempoBotaoDir > 400) && vivo && (estadoAtual === TELA_PET || estadoAtual === TELA_MENU)) {
+        segurandoStatusVida = true;
+        estadoAtual = TELA_STATUS_VIDA;
+      }
+
       // Avanço rápido no hold do botão esquerdo na tela de ajuste de hora
       if (botaoEsqPressionado && (now - tempoBotaoEsq > 400) && (estadoAtual === TELA_AJUSTE_HORA)) {
         if (now - ultimoIncrementoHora > 100) {
@@ -1209,6 +1231,7 @@
         case TELA_SUBMENU_OPCOES: desenharSubMenuOpcoes(); break;
         case TELA_CONFIRM_RESET: desenharTelaConfirmReset(); break;
         case TELA_BOOT:     desenharTelaBoot(); break;
+        case TELA_STATUS_VIDA: desenharTelaStatusVida(); break;
         case TELA_DESLIGADO: desenharTelaDesligado(); break;
       }
 
@@ -1237,6 +1260,7 @@
         [TELA_BANHO]:    { text: '🧼 Banho', cls: 'screen-mode-badge status' },
         [TELA_AJUSTE_HORA]: { text: '🕒 Ajustar Hora', cls: 'screen-mode-badge status' },
         [TELA_BOOT]:     { text: '🚀 Inicializando', cls: 'screen-mode-badge status' },
+        [TELA_STATUS_VIDA]: { text: '🕒 Vida/Tempo', cls: 'screen-mode-badge status' },
       };
       const b = badgeMap[estadoAtual] || { text: '❓ ' + estadoAtual, cls: 'screen-mode-badge status' };
       badge.textContent = b.text;
@@ -1263,19 +1287,24 @@
         if (idade % 3 === 0) fome = Math.max(0, fome - 10);
         if (idade % 3 === 0) felicidade = Math.max(0, felicidade - 10);
       } else {
-        // Fase Capivara (Normal) - Valores acelerados apenas no estado Saudável
-        if (!taDoente) {
-          if (!temCoco) {
-            if (idade % 15 === 0) fome = Math.max(0, fome - 1);
-            if (idade % 10 === 0) felicidade = Math.max(0, felicidade - 1);
-          } else {
-            if (idade % 15 === 0) fome = Math.max(0, fome - 1);
-            if (idade % 5 === 0) felicidade = Math.max(0, felicidade - 1); // Volta para o original (5 min)
-          }
-        } else {
-          if (idade % 15 === 0) fome = Math.max(0, fome - 1); // Volta para o original (15 min)
-          if (idade % 5 === 0) felicidade = Math.max(0, felicidade - 1); // Volta para o original (5 min)
+        // Fase Capivara (Normal) - Valores aleatórios com média de 12 horas para zerar
+        let dropFome = 0;
+        if (Math.random() * 1000 < 31) { // Aprox 3.1% de chance a cada minuto
+          dropFome = Math.floor(Math.random() * 8) + 1; // Perde de 1 a 8
         }
+
+        let limiteFeliz = 31;
+        if (taDoente || temCoco) {
+          limiteFeliz = 62; // O dobro de chance de perder felicidade se sujo ou doente
+        }
+
+        let dropFeliz = 0;
+        if (Math.random() * 1000 < limiteFeliz) {
+          dropFeliz = Math.floor(Math.random() * 8) + 1; // Perde de 1 a 8
+        }
+
+        fome = Math.max(0, fome - dropFome);
+        felicidade = Math.max(0, felicidade - dropFeliz);
       }
       
       idade++;
@@ -1285,14 +1314,14 @@
         temCoco = true;
       }
 
-      // Agoniza por 12 horas após crescer se estiver zerado
+      // Agoniza por 48 horas (2 dias) após crescer se estiver zerado
       if (idade >= 60) {
         if (fome === 0 || felicidade === 0) {
           turnosZerado++;
-          if (turnosZerado % 60 === 0 && turnosZerado < 720) {
+          if (turnosZerado % 60 === 0 && turnosZerado < 2880) {
             tocarSomBeep(); // Beepa a cada 60 min de agonia
           }
-          if (turnosZerado >= 720) {
+          if (turnosZerado >= 2880) {
             vivo = false;
             estadoAtual = TELA_GAMEOVER;
             tocarSomFalha();
@@ -1547,6 +1576,10 @@
     let ultimoIncrementoHora = 0;
     let fastForwarded = false;
 
+    let tempoBotaoDir = 0;
+    let segurandoStatusVida = false;
+    let botaoDirPressionado = false;
+
     function iniciarHoldEsquerdo() {
       if (!vivo) {
         botaoEsqPressionado = true;
@@ -1593,13 +1626,9 @@
       }
       switch (estadoAtual) {
         case TELA_PET:
-          if (estaDormindo()) {
-            tocarSomFalha();
-          } else {
-            estadoAtual = TELA_MENU;
-            menuCursor = 0;
-            tocarSomBeep();
-          }
+          estadoAtual = TELA_MENU;
+          menuCursor = 0;
+          tocarSomBeep();
           break;
         case TELA_MENU:
           menuCursor++;
@@ -1610,6 +1639,7 @@
           tocarSomBeep();
           break;
         case TELA_STATUS:
+        case TELA_STATUS_VIDA:
           estadoAtual = TELA_PET;
           break;
         case TELA_GAMEOVER:
@@ -1636,6 +1666,32 @@
       }
     }
 
+    function iniciarHoldDireito() {
+      if (!vivo) {
+        botaoDirPressionado = true;
+        return;
+      }
+      if (!botaoDirPressionado) {
+        botaoDirPressionado = true;
+        segurandoStatusVida = false;
+        tempoBotaoDir = performance.now();
+      }
+    }
+
+    function liberarDireito() {
+      if (!botaoDirPressionado) return;
+      botaoDirPressionado = false;
+
+      if (segurandoStatusVida) {
+        segurandoStatusVida = false;
+        if (estadoAtual === TELA_STATUS_VIDA) {
+          estadoAtual = TELA_PET;
+        }
+      } else {
+        executarCliqueDireito();
+      }
+    }
+
     // =============================================
     // EVENT LISTENERS
     // =============================================
@@ -1656,12 +1712,36 @@
 
     btnEsq.addEventListener('mousedown', onPressEsqStart);
     btnEsq.addEventListener('touchstart', onPressEsqStart, { passive: false });
-    
-    window.addEventListener('mouseup', onPressEsqEnd);
-    window.addEventListener('touchend', onPressEsqEnd, { passive: false });
-    window.addEventListener('touchcancel', onPressEsqEnd, { passive: false });
 
-    function onBtnDireito() {
+    function onPressDirStart(e) {
+      if (e) e.preventDefault();
+      btnDir.classList.add('pressed');
+      iniciarHoldDireito();
+    }
+
+    function onPressDirEnd(e) {
+      if (e) e.preventDefault();
+      btnDir.classList.remove('pressed');
+      liberarDireito();
+    }
+
+    btnDir.addEventListener('mousedown', onPressDirStart);
+    btnDir.addEventListener('touchstart', onPressDirStart, { passive: false });
+    
+    window.addEventListener('mouseup', (e) => {
+      liberarEsquerdo();
+      liberarDireito();
+    });
+    window.addEventListener('touchend', (e) => {
+      liberarEsquerdo();
+      liberarDireito();
+    });
+    window.addEventListener('touchcancel', (e) => {
+      liberarEsquerdo();
+      liberarDireito();
+    });
+
+    function executarCliqueDireito() {
       pressBtn('btn-dir');
       if (estadoAtual === TELA_AJUSTE_HORA) {
         if (campoAjuste === 0 || campoAjuste === 1) {
@@ -1693,6 +1773,7 @@
           executarMenuAcao();
           break;
         case TELA_STATUS:
+        case TELA_STATUS_VIDA:
           estadoAtual = TELA_PET;
           break;
         case TELA_GAMEOVER:
@@ -1736,11 +1817,8 @@
       if (e.clientX < window.innerWidth / 2) {
         iniciarHoldEsquerdo();
       } else {
-        onBtnDireito(e);
+        iniciarHoldDireito();
       }
-    });
-    window.addEventListener('mouseup', (e) => {
-      liberarEsquerdo();
     });
     window.addEventListener('touchstart', (e) => {
       if (e.target.closest('#toggle-dev') || e.target.closest('.controls-panel') || e.target.closest('#color-menu')) return;
@@ -1751,15 +1829,9 @@
         iniciarHoldEsquerdo();
       } else {
         e.preventDefault();
-        onBtnDireito(e);
+        iniciarHoldDireito();
       }
     }, { passive: false });
-    window.addEventListener('touchend', (e) => {
-      liberarEsquerdo();
-    });
-    window.addEventListener('touchcancel', (e) => {
-      liberarEsquerdo();
-    });
 
     window.addEventListener('keydown', (e) => {
       const menu = document.getElementById('color-menu');
@@ -1769,7 +1841,7 @@
         iniciarHoldEsquerdo();
       }
       if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
-        onBtnDireito();
+        iniciarHoldDireito();
       }
     });
 
@@ -1778,6 +1850,9 @@
       if (menu && menu.classList.contains('open')) return;
       if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
         liberarEsquerdo();
+      }
+      if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
+        liberarDireito();
       }
     });
 
